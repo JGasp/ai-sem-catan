@@ -17,6 +17,7 @@ public class Map {
         initTerrain();
         initLand();
         initRoad();
+        initTrading();
     }
 
 
@@ -205,6 +206,36 @@ public class Map {
         roads.add(gl(51).initRoad(70, gl(52)));
         roads.add(gl(52).initRoad(71, gl(53)));
         roads.add(gl(53).initRoad(72, gl(54)));
+
+    }
+
+    private void initTrading() {
+        gl(1).setClayTrading(true);
+        gl(2).setClayTrading(true);
+
+        gl(5).setAnyTrading(true);
+        gl(6).setAnyTrading(true);
+
+        gl(15).setSheepTrading(true);
+        gl(16).setSheepTrading(true);
+
+        gl(27).setAnyTrading(true);
+        gl(38).setAnyTrading(true);
+
+        gl(46).setAnyTrading(true);
+        gl(54).setAnyTrading(true);
+
+        gl(51).setAnyTrading(true);
+        gl(52).setAnyTrading(true);
+
+        gl(48).setWheatTrading(true);
+        gl(49).setWheatTrading(true);
+
+        gl(29).setWoodTrading(true);
+        gl(39).setWoodTrading(true);
+
+        gl(8).setAnyTrading(true);
+        gl(18).setAnyTrading(true);
 
     }
 }
