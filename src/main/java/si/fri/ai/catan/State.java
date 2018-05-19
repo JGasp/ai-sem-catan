@@ -464,7 +464,7 @@ public class State {
         gameState[index + roadIndex] = playerFigureTag;
     }
 
-    public byte getRoad(byte roadIndex) {
+    public byte getRoad(int roadIndex) {
         int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
         return gameState[index + roadIndex];
     }

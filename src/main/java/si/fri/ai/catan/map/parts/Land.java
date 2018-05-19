@@ -1,11 +1,15 @@
 package si.fri.ai.catan.map.parts;
 
 
+import si.fri.ai.catan.map.parts.positon.Point;
+
 public class Land {
 
-    private int index;
+    private byte index;
     private Terrain[] terrains;
     private Road[] roads;
+
+    private Point point;
 
     private int roadsCount = 0;
 
@@ -17,12 +21,12 @@ public class Land {
     private boolean anyTrading = false;
 
     public Land(int index, int roads, Terrain... terrains) {
-        this.index = index;
+        this.index = (byte) index;
         this.roads = new Road[roads];
         this.terrains = terrains;
     }
 
-    public int getIndex() {
+    public byte getIndex() {
         return index;
     }
 
@@ -38,7 +42,7 @@ public class Land {
         Road road = new Road(index, this, that);
 
         this.roads[this.roadsCount++] = road;
-        this.roads[that.roadsCount++] = road;
+        that.roads[that.roadsCount++] = road;
 
         return road;
     }
@@ -93,5 +97,13 @@ public class Land {
 
     public boolean isAnyTrading() {
         return anyTrading;
+    }
+
+    public Point getPoint() {
+        return point;
+    }
+
+    public void setPoint(Point point) {
+        this.point = point;
     }
 }
