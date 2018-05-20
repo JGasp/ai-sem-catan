@@ -1,16 +1,18 @@
 package si.fri.ai.catan.rules.moves;
 
+import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
 
 public class BuildCity extends Move {
 
-    private int villageIndex;
+    private byte villageIndex;
 
-    public BuildCity(int villageIndex) {
+    public BuildCity(byte villageIndex) {
         this.villageIndex = villageIndex;
     }
 
-    public int getVillageIndex() {
-        return villageIndex;
+    @Override
+    public void make(State state, int playerIndex) {
+        state.buildCity(playerIndex, villageIndex);
     }
 }

@@ -1,5 +1,6 @@
 package si.fri.ai.catan.rules.moves;
 
+import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
@@ -16,15 +17,8 @@ public class TradeResources extends Move {
         this.ratio = ratio;
     }
 
-    public ResourceType getTradeIn() {
-        return tradeIn;
-    }
+    @Override
+    public void make(State state, int playerIndex) {
 
-    public ResourceType getTradeOut() {
-        return tradeOut;
-    }
-
-    public int getRatio() {
-        return ratio;
     }
 }

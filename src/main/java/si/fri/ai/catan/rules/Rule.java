@@ -7,7 +7,9 @@ import si.fri.ai.catan.map.parts.Road;
 import si.fri.ai.catan.rules.moves.BuildCity;
 import si.fri.ai.catan.rules.moves.BuildRoad;
 import si.fri.ai.catan.rules.moves.BuildVillage;
+import si.fri.ai.catan.rules.moves.TradeResources;
 import si.fri.ai.catan.rules.moves.base.Move;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,9 +137,64 @@ public class Rule {
         if(hasResourceToBuildCity(state, playerIndex)) {
 
             int villages = state.getNumberOfVillages(playerIndex);
-            for(int i=0; i<villages; i++) {
+            for(byte i=0; i<villages; i++) {
                 moves.add(new BuildCity(i));
             }
+        }
+    }
+
+    private void canTradeResource(ResourceType in, int ratio, List<Move> moves) {
+        for(ResourceType rt : ResourceType.values()) {
+            if(rt != in) {
+                moves.add(new TradeResources(in, rt, ratio));
+            }
+        }
+    }
+
+
+    private void canTradeResources(State state, int playerIndex, ResourceType resource, List<Move> moves) {
+
+        byte resourceAmount = 0;
+        boolean trading = false;
+
+        switch (resource) {
+            case WOOD:
+                resourceAmount = state.getWood(playerIndex);
+                trading = state.isWoodTrading(playerIndex);
+                break;
+            case IRON:
+                resourceAmount = state.getIron(playerIndex);
+                trading = state.isIronTrading(playerIndex);
+                break;
+            case WHEAT:
+                resourceAmount = state.getWheat(playerIndex);
+                trading = state.isWheatTrading(playerIndex);
+                break;
+            case SHEEP:
+                resourceAmount = state.getSheep(playerIndex);
+                trading = state.isSheepTrading(playerIndex);
+                break;
+            case CLAY:
+                resourceAmount = state.getClay(playerIndex);
+                trading = state.isClayTrading(playerIndex);
+                break;
+        }
+
+        int ratio = 4;
+        if(trading) {
+            ratio = 2;
+        } else if(state.isAnyTrading(playerIndex)) {
+            ratio = 3;
+        }
+
+        if(resourceAmount >= ratio) {
+            canTradeResource(resource, ratio, moves);
+        }
+    }
+
+    private void canTrade(State state, int playerIndex, List<Move> moves) {
+        for(ResourceType rt : ResourceType.values()) {
+            canTradeResources(state, playerIndex, rt, moves);
         }
     }
 
@@ -148,15 +205,14 @@ public class Rule {
         canBuildVillage(state, playerIndex, moves);
         canBuildCity(state, playerIndex, moves);
 
+        canTrade(state, playerIndex, moves);
+
         return moves;
     }
 
-    public State makeMove(State state, Move move) {
+    public State makeMove(State state, int playerIndex, Move move) {
         State copy = state.copy();
-
-
-
-
+        move.make(state, playerIndex);
         return copy;
     }
 

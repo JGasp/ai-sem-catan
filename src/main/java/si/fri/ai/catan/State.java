@@ -35,9 +35,9 @@ public class State {
     private static final int MAP_ALLOCATION = LANDS + ROADS + THIEF + ROUND;
 
     private static final byte FIGURE_TAG_OFFSET = 10;
-    private static final int ROAD_FIGURES_TAG = 1;
-    private static final int VILLAGE_FIGURES_TAG = 2;
-    private static final int CITY_FIGURES_TAG = 3;
+    private static final byte ROAD_FIGURES_TAG = 1;
+    private static final byte VILLAGE_FIGURES_TAG = 2;
+    private static final byte CITY_FIGURES_TAG = 3;
 
     private float[] avgIncomePerRound;
     private byte[] gameState;
@@ -396,13 +396,13 @@ public class State {
         return gameState[index + 1 + offset];
     }
 
-    public void buildVillages(int playerIndex, byte roadIndex) {
+    public void buildVillages(int playerIndex, byte landIndex) {
         int index = playerIndex * PLAYER_ALLOCATION + VILLAGES_FIGURES_OFFSET;
         byte offset = gameState[index];
-        gameState[index + 1 + offset] = roadIndex;
+        gameState[index + 1 + offset] = landIndex;
         gameState[index]++;
 
-        setRoad(playerIndex, roadIndex);
+        setRoad(playerIndex, landIndex);
     }
 
     public byte deleteVillage(int playerIndex, int offset) {
@@ -449,7 +449,7 @@ public class State {
         gameState[index + 1 + offset] = roadIndex;
         gameState[index]++;
 
-        setRoad(playerIndex, roadIndex);
+        setLand(playerIndex, roadIndex, CITY_FIGURES_TAG);
     }
 
 

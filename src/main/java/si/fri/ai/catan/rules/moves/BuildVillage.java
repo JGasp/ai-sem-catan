@@ -1,5 +1,6 @@
 package si.fri.ai.catan.rules.moves;
 
+import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
 
 public class BuildVillage extends Move {
@@ -10,7 +11,8 @@ public class BuildVillage extends Move {
         this.landIndex = landIndex;
     }
 
-    public byte getLandIndex() {
-        return landIndex;
+    @Override
+    public void make(State state, int playerIndex) {
+        state.buildVillages(playerIndex, landIndex);
     }
 }

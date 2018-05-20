@@ -1,5 +1,6 @@
 package si.fri.ai.catan.rules.moves;
 
+import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
 
 public class BuildRoad extends Move {
@@ -10,7 +11,8 @@ public class BuildRoad extends Move {
         this.roadIndex = roadIndex;
     }
 
-    public byte getRoadIndex() {
-        return roadIndex;
+    @Override
+    public void make(State state, int playerIndex) {
+        state.buildRoad(playerIndex, roadIndex);
     }
 }
