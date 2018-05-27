@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class State {
 
-    private static final int NUMBER_OF_PLAYERS = 2;
+    public static final int NUMBER_OF_PLAYERS = 2;
 
     private static final int DICE_VALUES = 10;
 
@@ -61,7 +61,7 @@ public class State {
     }
 
     /**
-     * Player game state structuring
+     * Player start state structuring
      * [4] Resources
      *  - wood
      *  - clay
@@ -170,6 +170,16 @@ public class State {
     public void activateResourceTrading(int playerIndex, ResourceType type) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
         gameState[index + type.getIndex()] = 1;
+    }
+
+    public boolean isAnyResourceTrading(int playerIndex) {
+        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
+        return gameState[index + DIFFERENT_RESOURCES] == 1;
+    }
+
+    public void activateAnyResourceTrading(int playerIndex) {
+        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
+        gameState[index + DIFFERENT_RESOURCES] = 1;
     }
 
     /**

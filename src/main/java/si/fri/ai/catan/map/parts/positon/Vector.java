@@ -69,4 +69,8 @@ public class Vector {
     public Vector add(Vector vec) {
         return new Vector(x + vec.x, y + vec.y);
     }
+
+    public static Vector vec(Point from, Point to) {
+        return new Vector(to.getX() - from.getX(), to.getY() - from.getY());
+    }
 }

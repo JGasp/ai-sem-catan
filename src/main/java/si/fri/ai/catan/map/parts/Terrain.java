@@ -1,6 +1,5 @@
 package si.fri.ai.catan.map.parts;
 
-import si.fri.ai.catan.map.parts.enums.TerrainType;
 import si.fri.ai.catan.map.parts.positon.Point;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 

@@ -24,24 +24,7 @@ public class TradeResources extends Move {
     public void make(State state) {
 
         subResource(state, tradeIn, ratio);
-
-        switch (tradeOut) {
-            case CLAY:
-                state.addClay(playerIndex, 1);
-                break;
-            case IRON:
-                state.addIron(playerIndex, 1);
-                break;
-            case SHEEP:
-                state.addSheep(playerIndex, 1);
-                break;
-            case WHEAT:
-                state.addWheat(playerIndex, 1);
-                break;
-            case WOOD:
-                state.addWood(playerIndex, 1);
-                break;
-        }
+        state.addResource(playerIndex, tradeOut, (byte) 1);
 
     }
 }

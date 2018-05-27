@@ -45,8 +45,8 @@ public class Rule {
 
     private boolean hasResourceToBuildRoad(State state, int playerIndex) {
         if(
-                state.getClay(playerIndex) >= 1 &&
-                state.getWood(playerIndex) >= 1
+                state.getResource(playerIndex, ResourceType.CLAY) >= 1 &&
+                state.getResource(playerIndex, ResourceType.WOOD) >= 1
         ) {
             return true;
         }
@@ -84,10 +84,10 @@ public class Rule {
 
     private boolean hasResourceToBuildVillage(State state, int playerIndex) {
         if(
-                state.getClay(playerIndex) >= 1 &&
-                state.getWood(playerIndex) >= 1 &&
-                state.getSheep(playerIndex) >= 1 &&
-                state.getWheat(playerIndex) >= 1
+                state.getResource(playerIndex, ResourceType.CLAY) >= 1 &&
+                state.getResource(playerIndex, ResourceType.WOOD) >= 1 &&
+                state.getResource(playerIndex, ResourceType.SHEEP) >= 1 &&
+                state.getResource(playerIndex, ResourceType.WHEAT) >= 1
         ) {
             return true;
         }
@@ -145,8 +145,8 @@ public class Rule {
 
     private boolean hasResourceToBuildCity(State state, int playerIndex) {
         if(
-                state.getIron(playerIndex) >= 3 &&
-                state.getWheat(playerIndex) >= 2
+                state.getResource(playerIndex, ResourceType.IRON) >= 3 &&
+                state.getResource(playerIndex, ResourceType.WHEAT) >= 2
         ) {
             return true;
         }
@@ -178,33 +178,13 @@ public class Rule {
         byte resourceAmount = 0;
         boolean trading = false;
 
-        switch (resource) {
-            case WOOD:
-                resourceAmount = state.getWood(playerIndex);
-                trading = state.isWoodTrading(playerIndex);
-                break;
-            case IRON:
-                resourceAmount = state.getIron(playerIndex);
-                trading = state.isIronTrading(playerIndex);
-                break;
-            case WHEAT:
-                resourceAmount = state.getWheat(playerIndex);
-                trading = state.isWheatTrading(playerIndex);
-                break;
-            case SHEEP:
-                resourceAmount = state.getSheep(playerIndex);
-                trading = state.isSheepTrading(playerIndex);
-                break;
-            case CLAY:
-                resourceAmount = state.getClay(playerIndex);
-                trading = state.isClayTrading(playerIndex);
-                break;
-        }
+        resourceAmount = state.getResource(playerIndex, resource);
+        trading = state.isResourceTrading(playerIndex, resource);
 
         int ratio = 4;
         if(trading) {
             ratio = 2;
-        } else if(state.isAnyTrading(playerIndex)) {
+        } else if(state.isAnyResourceTrading(playerIndex)) {
             ratio = 3;
         }
 

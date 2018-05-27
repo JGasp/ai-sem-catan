@@ -14,6 +14,8 @@ import java.awt.*;
 
 public class MapPanel extends JPanel {
 
+    private static final Color[] playerColors = { Color.RED, Color.BLUE, Color.ORANGE, Color.WHITE };
+
     private static final int Y_OFFSET = 500;
     private static final int X_OFFSET = 900;
 
@@ -36,6 +38,11 @@ public class MapPanel extends JPanel {
     }
 
 
+    public void updateState(State state) {
+        this.state = state;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -45,6 +52,29 @@ public class MapPanel extends JPanel {
 
         for(Terrain t : map.getTerrains()) {
             paintTerrain(g, t);
+        }
+
+        if(state != null) {
+            for(int pi=0; pi<State.NUMBER_OF_PLAYERS; pi++) {
+
+                int numberOfRoads = state.getNumberOfRoads(pi);
+                for(int ri=0; ri<numberOfRoads; ri++) {
+                    Road r = map.gr(state.getRoadLocation(pi, ri));
+                    paintRoad(g, r.getFrom().getPoint(), r.getTo().getPoint(), pi);
+                }
+
+                int numberOfVillages = state.getNumberOfVillages(pi);
+                for(int vi=0; vi<numberOfVillages; vi++) {
+                    Land l = map.gl(state.getVillagesLocation(pi, vi));
+                    paintVillage(g, l.getPoint(), pi);
+                }
+
+                int numberOfCities = state.getNumberOfCities(pi);
+                for(int ci=0; ci<numberOfCities; ci++) {
+                    Land l = map.gl(state.getCityLocation(pi, ci));
+                    paintCity(g, l.getPoint(), pi);
+                }
+            }
         }
 
         for(Land l : map.getLands()) {
@@ -76,12 +106,12 @@ public class MapPanel extends JPanel {
         xPoints[5] = (int) p6.getX() + X_OFFSET;
 
         int[] yPoints = new int[6];
-        yPoints[0] = Y_OFFSET - (int) p1.getY();
-        yPoints[1] = Y_OFFSET - (int) p2.getY();
-        yPoints[2] = Y_OFFSET - (int) p3.getY();
-        yPoints[3] = Y_OFFSET - (int) p4.getY();
-        yPoints[4] = Y_OFFSET - (int) p5.getY();
-        yPoints[5] = Y_OFFSET - (int) p6.getY();
+        yPoints[0] = (int) p1.getY() + Y_OFFSET;
+        yPoints[1] = (int) p2.getY() + Y_OFFSET;
+        yPoints[2] = (int) p3.getY() + Y_OFFSET;
+        yPoints[3] = (int) p4.getY() + Y_OFFSET;
+        yPoints[4] = (int) p5.getY() + Y_OFFSET;
+        yPoints[5] = (int) p6.getY() + Y_OFFSET;
 
 
         Polygon polygon = new Polygon(xPoints, yPoints, 6);
@@ -103,9 +133,14 @@ public class MapPanel extends JPanel {
         char[] textType = String.format("Type: %s", t.getType().name()).toCharArray();
         char[] textDice = String.format("Dice: %d", t.getDice()).toCharArray();
 
-        g.drawChars(textIndex, 0, textIndex.length, (int) t.getPoint().getX() + X_OFFSET - 30, Y_OFFSET - 15 - (int) t.getPoint().getY());
-        g.drawChars(textType, 0, textType.length, (int) t.getPoint().getX() + X_OFFSET - 30, Y_OFFSET - (int) t.getPoint().getY());
-        g.drawChars(textDice, 0, textDice.length, (int) t.getPoint().getX() + X_OFFSET - 30, Y_OFFSET + 15 - (int) t.getPoint().getY());
+        g.drawChars(textIndex, 0, textIndex.length,
+                (int) t.getPoint().getX() + X_OFFSET - 30, (int) t.getPoint().getY() + 15 + Y_OFFSET);
+
+        g.drawChars(textType, 0, textType.length,
+                (int) t.getPoint().getX() + X_OFFSET - 30, (int) t.getPoint().getY() + Y_OFFSET);
+
+        g.drawChars(textDice, 0, textDice.length,
+                (int) t.getPoint().getX() + X_OFFSET - 30, (int) t.getPoint().getY() - 15 + Y_OFFSET);
 
 
     }
@@ -113,13 +148,79 @@ public class MapPanel extends JPanel {
     private void paintLand(Graphics g, Land l) {
         g.setColor(Color.BLACK);
         char[] textIndex = String.format("%d", l.getIndex()).toCharArray();
-        g.drawChars(textIndex, 0, textIndex.length, (int) l.getPoint().getX() + X_OFFSET, Y_OFFSET - (int) l.getPoint().getY());
+
+        g.drawChars(textIndex, 0, textIndex.length,
+                (int) l.getPoint().getX() + X_OFFSET, (int) l.getPoint().getY() + Y_OFFSET);
     }
 
     private void paintRoad(Graphics g, Road r) {
         g.setColor(Color.BLACK);
         char[] textIndex = String.format("%d", r.getIndex()).toCharArray();
-        g.drawChars(textIndex, 0, textIndex.length, (int) r.getPoint().getX() + X_OFFSET, Y_OFFSET - (int) r.getPoint().getY());
+
+        g.drawChars(textIndex, 0, textIndex.length,
+                (int) r.getPoint().getX() + X_OFFSET,  (int) r.getPoint().getY() + Y_OFFSET);
+    }
+
+    private void paintVillage(Graphics g, Point p, int playerIndex) {
+        g.setColor(playerColors[playerIndex]);
+
+        int[] xPoints = new int[5];
+        xPoints[0] = (int) (p.getX() - 6);
+        xPoints[1] = (int) (p.getX() - 6);
+        xPoints[2] = (int) (p.getX());
+        xPoints[3] = (int) (p.getX() + 6);
+        xPoints[4] = (int) (p.getX() + 6);
+
+        int[] yPoints = new int[5];
+        yPoints[0] = (int) (p.getY() + 6);
+        yPoints[1] = (int) (p.getY() - 6);
+        yPoints[2] = (int) (p.getY() - 12);
+        yPoints[3] = (int) (p.getY() - 6);
+        yPoints[4] = (int) (p.getY() + 6);
+
+        Polygon polygon = new Polygon(xPoints, yPoints, 5);
+
+        g.fillPolygon(polygon);
+    }
+
+    private void paintCity(Graphics g, Point p, int playerIndex) {
+        g.setColor(playerColors[playerIndex]);
+
+        int[] xPoints = new int[6];
+        xPoints[0] = (int) (p.getX() - 12);
+        xPoints[1] = (int) (p.getX() - 12);
+        xPoints[2] = (int) (p.getX());
+        xPoints[2] = (int) (p.getX() + 6);
+        xPoints[3] = (int) (p.getX() + 12);
+        xPoints[4] = (int) (p.getX() + 12);
+
+        int[] yPoints = new int[6];
+        yPoints[0] = (int) (p.getY() + 6);
+        yPoints[1] = (int) (p.getY() - 6);
+        yPoints[1] = (int) (p.getY() - 6);
+        yPoints[2] = (int) (p.getY() - 12);
+        yPoints[3] = (int) (p.getY() - 6);
+        yPoints[4] = (int) (p.getY() + 6);
+
+        Polygon polygon = new Polygon(xPoints, yPoints, 6);
+
+        g.fillPolygon(polygon);
+    }
+
+    private void paintRoad(Graphics g, Point from, Point to, int playerIndex) {
+        g.setColor(playerColors[playerIndex]);
+
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(5));
+
+        Vector v = Vector.vec(from, to).scale(0.2);
+
+        Point p1 = from.add(v);
+        Point p2 = to.add(v.neg());
+
+        g.drawLine((int) p1.getX(), (int) p1.getY(),
+                (int) p2.getX(), (int) p2.getY());
+
     }
 
 }

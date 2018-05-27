@@ -5,6 +5,7 @@ import si.fri.ai.catan.State;
 import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.rules.moves.base.Move;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 public class BuildVillage extends Move {
 
@@ -18,8 +19,10 @@ public class BuildVillage extends Move {
     @Override
     public void make(State state) {
 
-        state.subIron(playerIndex, 3);
-        state.subWheat(playerIndex, 2);
+        state.subResource(playerIndex, ResourceType.WOOD, (byte) 1);
+        state.subResource(playerIndex, ResourceType.CLAY, (byte) 1);
+        state.subResource(playerIndex, ResourceType.SHEEP, (byte) 1);
+        state.subResource(playerIndex, ResourceType.WHEAT, (byte) 1);
 
         state.buildVillages(playerIndex, landIndex);
 

@@ -3,6 +3,7 @@ package si.fri.ai.catan.rules.moves;
 import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 public class BuildRoad extends Move {
 
@@ -16,8 +17,8 @@ public class BuildRoad extends Move {
     @Override
     public void make(State state) {
 
-        state.subClay(playerIndex, 2);
-        state.subWood(playerIndex, 2);
+        state.subResource(playerIndex, ResourceType.CLAY, (byte) 1);
+        state.subResource(playerIndex, ResourceType.WOOD, (byte) 1);
 
         state.buildRoad(playerIndex, roadIndex);
     }

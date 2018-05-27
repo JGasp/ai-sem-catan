@@ -4,14 +4,22 @@ import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
+import si.fri.ai.catan.rules.moves.PlacingVillage;
 import si.fri.ai.catan.rules.moves.base.Move;
 
 import java.util.List;
 
 public abstract class Player {
 
-    private int playerIndex;
     private Game game;
+    private int playerIndex;
+
+
+    public Player(Game game, int playerIndex) {
+        this.game = game;
+        this.playerIndex = playerIndex;
+    }
+
 
     public int getPlayerIndex() {
         return playerIndex;
@@ -29,7 +37,7 @@ public abstract class Player {
         this.game = game;
     }
 
-    public abstract List<Move> playPlacingTurn(State state);
+    public abstract PlacingVillage playPlacingTurn(State state);
     public abstract List<Move> playTurn(State state);
     public abstract List<DropResources> dropResources(State state);
     public abstract MoveRobber moveRobber(State state);
