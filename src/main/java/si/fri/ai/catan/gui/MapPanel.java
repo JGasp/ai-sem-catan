@@ -88,11 +88,11 @@ public class MapPanel extends JPanel {
 
         Color c = Color.YELLOW;
         switch (t.getType()) {
-            case FIELD: c = Color.ORANGE; break;
-            case MOUNTAIN: c = Color.GRAY; break;
-            case FORREST: c = Color.GREEN.darker(); break;
-            case PASTURE: c = Color.GREEN.brighter(); break;
-            case QUERY: c = Color.RED.darker(); break;
+            case WHEAT: c = Color.ORANGE; break;
+            case IRON: c = Color.GRAY; break;
+            case WOOD: c = Color.GREEN.darker(); break;
+            case SHEEP: c = Color.GREEN.brighter(); break;
+            case CLAY: c = Color.RED.darker(); break;
         }
         g.setColor(c);
 

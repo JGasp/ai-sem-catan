@@ -1,13 +1,17 @@
 package si.fri.ai.catan;
 
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
+
 import java.util.Arrays;
 
 public class State {
 
-    private static int NUMBER_OF_PLAYERS = 2;
+    private static final int NUMBER_OF_PLAYERS = 2;
+
+    private static final int DICE_VALUES = 10;
 
     private static final int DIFFERENT_RESOURCES = 5;
-    private static final int RESOURCES_INCOME = DIFFERENT_RESOURCES * 11;
+    private static final int RESOURCES_INCOME = DIFFERENT_RESOURCES * DICE_VALUES;
     private static final int RESOURCES_AVERAGE_INCOME = DIFFERENT_RESOURCES;
     private static final int DIFFERENT_TRADING_TYPES = DIFFERENT_RESOURCES + 1;
 
@@ -30,14 +34,13 @@ public class State {
     private static final int LANDS = 54;
 
     private static final int THIEF = 1;
-    private static final int ROUND = 1;
 
-    private static final int MAP_ALLOCATION = LANDS + ROADS + THIEF + ROUND;
+    private static final int MAP_ALLOCATION = LANDS + ROADS + THIEF;
 
-    private static final byte FIGURE_TAG_OFFSET = 10;
-    private static final byte ROAD_FIGURES_TAG = 1;
-    private static final byte VILLAGE_FIGURES_TAG = 2;
-    private static final byte CITY_FIGURES_TAG = 3;
+    public static final byte FIGURE_TAG_OFFSET = 10;
+    public static final byte ROAD_FIGURES_TAG = 1;
+    public static final byte VILLAGE_FIGURES_TAG = 1;
+    public static final byte CITY_FIGURES_TAG = 2;
 
     private float[] avgIncomePerRound;
     private byte[] gameState;
@@ -45,16 +48,12 @@ public class State {
     public State() {
         int finalGameStateSize = MAP_ALLOCATION + NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
         gameState = new byte[finalGameStateSize];
-        avgIncomePerRound = new float[DIFFERENT_RESOURCES];
+        avgIncomePerRound = new float[DIFFERENT_RESOURCES * NUMBER_OF_PLAYERS];
     }
 
     public State(State state) {
         this.gameState = Arrays.copyOf(state.gameState, state.gameState.length);
         this.avgIncomePerRound = Arrays.copyOf(state.avgIncomePerRound, state.avgIncomePerRound.length);
-    }
-
-    public static void initNumberOfPlayers(int numberOfPlayers){
-        NUMBER_OF_PLAYERS = numberOfPlayers;
     }
 
     public State copy() {
@@ -98,256 +97,80 @@ public class State {
      * Resources getters and setters
      */
 
-    public byte getWood(int playerIndex) {
+    public byte getResource(int playerIndex, ResourceType type) {
         int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index];
+        return gameState[index + type.getIndex()];
     }
 
-    public void setWood(int playerIndex, byte wood) {
+    public void setResource(int playerIndex, ResourceType type, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index] = wood;
+        gameState[index + type.getIndex()] = amount;
     }
 
-
-    public byte getClay(int playerIndex) {
+    public void addResource(int playerIndex, ResourceType type, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 1];
+        gameState[index + type.getIndex()] += amount;
     }
 
-    public void setClay(int playerIndex, byte clay) {
+    public void subResource(int playerIndex, ResourceType type, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 1] = clay;
+        gameState[index + type.getIndex()] -= amount;
     }
-
-
-    public byte getSheep(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 2];
-    }
-
-    public void setSheep(int playerIndex, byte sheep) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 2] = sheep;
-    }
-
-
-    public byte getIron(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 3];
-    }
-
-    public void setIron(int playerIndex, byte iron) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 3] = iron;
-    }
-
-
-    public byte getWheat(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 4];
-    }
-
-    public void setWheat(int playerIndex, byte iron) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 4] = iron;
-    }
-
 
     /**
      * Resource income by dice number
      */
-    public static int RESOURCE_INCOME_OFFSET = DIFFERENT_RESOURCES;
+    private static int RESOURCE_INCOME_OFFSET = DIFFERENT_RESOURCES;
 
-    public byte getWoodIncome(int playerIndex, int dice) {
+    private int diceIndex(int dice) {
+        if(dice > 7) {
+            dice--;
+        }
+        return dice - 2;
+    }
+
+    public byte getResourceIncome(int playerIndex, ResourceType type, int dice) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        return gameState[index + dice];
+        return gameState[index + type.getIndex() + diceIndex(dice)];
     }
 
-    public void setWoodIncome(int playerIndex, int dice, byte wood) {
+    public void setResourceIncome(int playerIndex, ResourceType type, int dice, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        gameState[index + dice] = wood;
+        int resourceIndex = type.getIndex() * DICE_VALUES;
+
+        gameState[index + resourceIndex + diceIndex(dice)] = amount;
     }
 
-
-    public byte getClayIncome(int playerIndex, int dice) {
+    public void addResourceIncome(int playerIndex, ResourceType type, int dice, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        return gameState[index + 11 + dice];
+        int resourceIndex = type.getIndex() * DICE_VALUES;
+
+        gameState[index + resourceIndex + diceIndex(dice)] += amount;
     }
 
-    public void setClayIncome(int playerIndex, int dice, byte clay) {
+    public void subResourceIncome(int playerIndex, ResourceType type, int dice, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        gameState[index + 11 + dice] = clay;
+        int resourceIndex = type.getIndex() * DICE_VALUES;
+
+        gameState[index + resourceIndex + diceIndex(dice)] -= amount;
     }
-
-
-    public byte getSheepIncome(int playerIndex, int dice) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        return gameState[index + 22 + dice];
-    }
-
-    public void setSheepIncome(int playerIndex, int dice, byte sheep) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        gameState[index + 22 + dice] = sheep;
-    }
-
-
-    public byte getIronIncome(int playerIndex, int dice) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        return gameState[index + 33 + dice];
-    }
-
-    public void setIronIncome(int playerIndex, int dice, byte iron) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        gameState[index + 33 + dice] = iron;
-    }
-
-
-    public byte getWheatIncome(int playerIndex, int dice) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        return gameState[index + 44 + dice];
-    }
-
-    public void setWheatnIncome(int playerIndex, int dice, byte iron) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        gameState[index + 44 + dice] = iron;
-    }
-
-
-    /**
-     * Average resource gain each turn, based on fair dice
-     */
-
-    /*public static int RESOURCE_AVERAGE_INCOME_OFFSET = RESOURCE_INCOME_OFFSET + RESOURCES_INCOME;
-
-
-    public byte getWoodAvgIncome(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index];
-    }
-
-    public void setWoodAvgIncome(int playerIndex, byte wood) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index] = wood;
-    }
-
-
-    public byte getClayAvgIncome(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 1];
-    }
-
-    public void setClayAvgIncome(int playerIndex, byte clay) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 1] = clay;
-    }
-
-
-    public byte getSheepAvgIncome(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 2];
-    }
-
-    public void setSheepAvgIncome(int playerIndex, byte sheep) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 2] = sheep;
-    }
-
-
-    public byte getIronAvgIncome(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 3];
-    }
-
-    public void setIronAvgIncome(int playerIndex, byte iron) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 3] = iron;
-    }
-
-
-    public byte getWheatAvgIncome(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        return gameState[index + 4];
-    }
-
-    public void setWheatAvgIncome(int playerIndex, byte iron) {
-        int index = playerIndex * PLAYER_ALLOCATION;
-        gameState[index + 4] = iron;
-    }*/
 
 
     /**
      * Trading policies
      */
 
-    public static int RESOURCE_TRADING_OFFSET = RESOURCE_INCOME_OFFSET + RESOURCES_INCOME; //RESOURCE_AVERAGE_INCOME_OFFSET + RESOURCES_AVERAGE_INCOME;
+    private static int RESOURCE_TRADING_OFFSET = RESOURCE_INCOME_OFFSET + RESOURCES_INCOME;
 
-
-    public boolean isWoodTrading(int playerIndex) {
+    public boolean isResourceTrading(int playerIndex, ResourceType type) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        return gameState[index] == 1;
+        return gameState[index + type.getIndex()] == 1;
     }
 
-    public void activateWoodTrading(int playerIndex) {
+    public void activateResourceTrading(int playerIndex, ResourceType type) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        gameState[index] = 1;
+        gameState[index + type.getIndex()] = 1;
     }
-
-
-    public boolean isClayTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        return gameState[index + 1] == 1;
-    }
-
-    public void activateClayTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        gameState[index + 1] = 1;
-    }
-
-
-    public boolean isSheepTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        return gameState[index + 2] == 1;
-    }
-
-    public void activateSheepTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        gameState[index + 2] = 1;
-    }
-
-
-    public boolean isIronTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        return gameState[index + 3] == 1;
-    }
-
-    public void activateIronTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        gameState[index + 3] = 1;
-    }
-
-
-    public boolean isWheatTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        return gameState[index + 4] == 1;
-    }
-
-    public void activateWheatTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        gameState[index + 4] = 1;
-    }
-
-
-    public boolean isAnyTrading(int playerIndex) {
-        int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_TRADING_OFFSET;
-        return gameState[index + 5] == 1;
-    }
-
-    public void activateAnyTrading(int playerIndex) {
-        int index = MAP_ALLOCATION + playerIndex * PLAYER_ALLOCATION + DIFFERENT_RESOURCES;
-        gameState[index + 5] = 1;
-    }
-
-
 
     /**
      * Figures number and location
@@ -402,13 +225,13 @@ public class State {
         gameState[index + 1 + offset] = landIndex;
         gameState[index]++;
 
-        setRoad(playerIndex, landIndex);
+        setLand(playerIndex, landIndex, VILLAGE_FIGURES_TAG);
     }
 
     public byte deleteVillage(int playerIndex, int offset) {
         int index = playerIndex * PLAYER_ALLOCATION + VILLAGES_FIGURES_OFFSET;
 
-        byte location = gameState[index + 1 + offset];
+        byte landIndex = gameState[index + 1 + offset];
 
         byte numberOfVillages = gameState[index];
         if(numberOfVillages == 1) {
@@ -420,7 +243,7 @@ public class State {
             gameState[index + 1 + offset] = gameState[index + 1 + numberOfVillages - 1];
         }
 
-        return location;
+        return landIndex;
     }
 
 
@@ -441,15 +264,17 @@ public class State {
         return gameState[index + 1 + offset];
     }
 
-    public void buildCity(int playerIndex, byte villageIndex) {
-        byte roadIndex = deleteVillage(playerIndex, villageIndex);
+    public byte buildCity(int playerIndex, byte villageIndex) {
+        byte landIndex = deleteVillage(playerIndex, villageIndex);
 
         int index = playerIndex * PLAYER_ALLOCATION + CITIES_FIGURES_OFFSET;
-        byte offset = gameState[index];
-        gameState[index + 1 + offset] = roadIndex;
+        byte offset = gameState[index]; // Number of cities
+        gameState[index + 1 + offset] = landIndex;
         gameState[index]++;
 
-        setLand(playerIndex, roadIndex, CITY_FIGURES_TAG);
+        setLand(playerIndex, landIndex, CITY_FIGURES_TAG);
+
+        return landIndex;
     }
 
 
@@ -458,30 +283,86 @@ public class State {
      * Map information
      */
 
+    private static final int ROADS_OFFSET = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
+
     private void setRoad(int playerIndex, byte roadIndex) {
         byte playerFigureTag = (byte) (playerIndex * FIGURE_TAG_OFFSET + ROAD_FIGURES_TAG);
-        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
-        gameState[index + roadIndex] = playerFigureTag;
+        gameState[ROADS_OFFSET + roadIndex] = playerFigureTag;
     }
 
     public byte getRoad(int roadIndex) {
-        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
-        return gameState[index + roadIndex];
+        return gameState[ROADS_OFFSET + roadIndex];
     }
 
-
+    private static final int LANDS_OFFSET = ROADS_OFFSET + ROADS;
 
     private void setLand(int playerIndex, byte landIndex, byte figureTag) {
         byte playerFigureTag = (byte) (playerIndex * FIGURE_TAG_OFFSET + figureTag);
-        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
-        gameState[index + landIndex] = playerFigureTag;
+        gameState[LANDS_OFFSET + landIndex] = playerFigureTag;
     }
 
     public byte getLand(byte landIndex) {
-        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS;
-        return gameState[index + landIndex];
+        return gameState[LANDS_OFFSET + landIndex];
     }
 
 
+    /**
+     * Average resource gain each turn, based on fair dice
+     */
+
+    private float getDiceRatio(int diceSum) {
+        switch (diceSum) {
+            case 2:
+            case 12:
+                return 1/36;
+            case 3:
+            case 11:
+                return 2/36;
+            case 4:
+            case 10:
+                return 3/36;
+            case 5:
+            case 9:
+                return 4/36;
+            case 6:
+            case 8:
+                return 5/36;
+            case 7:
+                return 6/36;
+            default:
+                return 0;
+        }
+    }
+
+    public float getResourceAvgIncome(int playerIndex, ResourceType type) {
+        int index = playerIndex * DIFFERENT_RESOURCES;
+        return avgIncomePerRound[index + type.getIndex()];
+    }
+
+    private void calculateResourceAvgIncome(int playerIndex, ResourceType type) {
+        int index = playerIndex * DIFFERENT_RESOURCES;
+
+        float avgIncome = 0;
+        for(int i=0; i<5; i++) {
+            avgIncome += getDiceRatio(i + 2) * gameState[index + type.getIndex() + i];
+        }
+        avgIncomePerRound[index + type.getIndex()] = avgIncome;
+    }
+
+    public void updateResourceAmount(int dice, int playerIndex) {
+        for(ResourceType rt: ResourceType.values()) {
+            addResource(playerIndex, rt, getResourceIncome(playerIndex, rt, dice));
+        }
+    }
+
+    public int getThiefLand() {
+        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS + LANDS;
+        return gameState[index];
+    }
+
+    public void setThiefLand(byte landIndex) {
+        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS + LANDS;
+        gameState[index] = landIndex;
+    }
 
 }

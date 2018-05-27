@@ -24,6 +24,10 @@ public class Land {
         this.index = (byte) index;
         this.roads = new Road[roads];
         this.terrains = terrains;
+
+        for(Terrain t : terrains) {
+            t.addLand(this);
+        }
     }
 
     public byte getIndex() {

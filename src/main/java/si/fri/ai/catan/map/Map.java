@@ -6,6 +6,7 @@ import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.map.parts.enums.TerrainType;
 import si.fri.ai.catan.map.parts.positon.Point;
 import si.fri.ai.catan.map.parts.positon.Vector;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import java.util.ArrayList;
 
@@ -27,44 +28,46 @@ public class Map {
         initRoadPoint();
     }
 
-    private void initTerrain() {
-        ArrayList<Terrain> t = terrains;
-
-        t.add(new Terrain(1, 6, TerrainType.QUERY));
-        t.add(new Terrain(2, 3, TerrainType.FORREST));
-        t.add(new Terrain(3, 8, TerrainType.FORREST));
-
-        t.add(new Terrain(4, 2, TerrainType.MOUNTAIN));
-        t.add(new Terrain(5, 9, TerrainType.MOUNTAIN));
-        t.add(new Terrain(6, 4, TerrainType.FIELD));
-        t.add(new Terrain(7, 10, TerrainType.PASTURE));
-
-        t.add(new Terrain(8, 5, TerrainType.QUERY));
-        t.add(new Terrain(9, -1, TerrainType.DESERT));
-        t.add(new Terrain(10, 11, TerrainType.QUERY));
-        t.add(new Terrain(11, 5, TerrainType.FIELD));
-        t.add(new Terrain(12, 9, TerrainType.FIELD));
-
-        t.add(new Terrain(13, 10, TerrainType.FORREST));
-        t.add(new Terrain(14, 3, TerrainType.PASTURE));
-        t.add(new Terrain(15, 6, TerrainType.MOUNTAIN));
-        t.add(new Terrain(16, 12, TerrainType.PASTURE));
-
-        t.add(new Terrain(17, 8, TerrainType.FIELD));
-        t.add(new Terrain(18, 4, TerrainType.PASTURE));
-        t.add(new Terrain(19, 11, TerrainType.FORREST));
-    }
 
     public Terrain gt(int i) {
-        return terrains.get(i - 1);
+        return terrains.get(i);
     }
 
     public Land gl(int i) {
-        return lands.get(i - 1);
+        return lands.get(i);
     }
 
     public Road gr(int i) {
-        return roads.get(i - 1);
+        return roads.get(i);
+    }
+
+
+    private void initTerrain() {
+        ArrayList<Terrain> t = terrains;
+
+        t.add(new Terrain(0, 6, ResourceType.CLAY));
+        t.add(new Terrain(1, 3, ResourceType.WOOD));
+        t.add(new Terrain(2, 8, ResourceType.WOOD));
+
+        t.add(new Terrain(3, 2, ResourceType.IRON));
+        t.add(new Terrain(4, 9, ResourceType.IRON));
+        t.add(new Terrain(5, 4, ResourceType.WHEAT));
+        t.add(new Terrain(6, 10, ResourceType.SHEEP));
+
+        t.add(new Terrain(7, 5, ResourceType.CLAY));
+        t.add(new Terrain(8, -1, ResourceType.NOTHING));
+        t.add(new Terrain(9, 11, ResourceType.CLAY));
+        t.add(new Terrain(10, 5, ResourceType.WHEAT));
+        t.add(new Terrain(11, 9, ResourceType.WHEAT));
+
+        t.add(new Terrain(12, 10, ResourceType.WOOD));
+        t.add(new Terrain(13, 3, ResourceType.SHEEP));
+        t.add(new Terrain(14, 6, ResourceType.IRON));
+        t.add(new Terrain(15, 12, ResourceType.SHEEP));
+
+        t.add(new Terrain(16, 8, ResourceType.WHEAT));
+        t.add(new Terrain(17, 4, ResourceType.SHEEP));
+        t.add(new Terrain(18, 11, ResourceType.WOOD));
     }
 
     private void initLand() {
@@ -247,6 +250,8 @@ public class Map {
         gl(18).setAnyTrading(true);
 
     }
+
+
 
     private void initTerrainPoint(){
         Point p10 = new Point(0, 0);
@@ -481,6 +486,9 @@ public class Map {
             r.calculatePoint();
         }
     }
+
+
+
 
     public ArrayList<Terrain> getTerrains() {
         return terrains;

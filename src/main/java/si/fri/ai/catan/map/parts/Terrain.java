@@ -2,20 +2,34 @@ package si.fri.ai.catan.map.parts;
 
 import si.fri.ai.catan.map.parts.enums.TerrainType;
 import si.fri.ai.catan.map.parts.positon.Point;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 public class Terrain {
 
     private int index;
     private int dice;
 
-    private TerrainType type;
+    private ResourceType type;
+
+    private int landIndex = 0;
+    private Land[] lands;
 
     private Point point;
 
-    public Terrain(int index, int dice, TerrainType type) {
+    public Terrain(int index, int dice, ResourceType type) {
         this.index = index;
         this.dice = dice;
         this.type = type;
+        this.lands = new Land[6];
+    }
+
+    public void addLand(Land l) {
+        this.lands[landIndex] = l;
+        landIndex++;
+    }
+
+    public Land[] getLands() {
+        return lands;
     }
 
     public Point getPoint() {
@@ -34,7 +48,7 @@ public class Terrain {
         return dice;
     }
 
-    public TerrainType getType() {
+    public ResourceType getType() {
         return type;
     }
 
