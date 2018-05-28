@@ -12,10 +12,10 @@ public class State {
 
     private static final int DIFFERENT_RESOURCES = 5;
     private static final int RESOURCES_INCOME = DIFFERENT_RESOURCES * DICE_VALUES;
-    private static final int RESOURCES_AVERAGE_INCOME = DIFFERENT_RESOURCES;
     private static final int DIFFERENT_TRADING_TYPES = DIFFERENT_RESOURCES + 1;
 
     private static final int FIGURES_BUILD = 1;
+
     private static final int ROAD_FIGURES = 15;
     private static final int VILLAGES_FIGURES = 5;
     private static final int CITY_FIGURES = 4;
@@ -24,7 +24,6 @@ public class State {
                     DIFFERENT_RESOURCES +
                     DIFFERENT_TRADING_TYPES +
                     RESOURCES_INCOME +
-                    RESOURCES_AVERAGE_INCOME +
                     FIGURES_BUILD + ROAD_FIGURES +
                     FIGURES_BUILD + VILLAGES_FIGURES +
                     FIGURES_BUILD + CITY_FIGURES;
@@ -49,6 +48,8 @@ public class State {
         int finalGameStateSize = MAP_ALLOCATION + NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
         gameState = new byte[finalGameStateSize];
         avgIncomePerRound = new float[DIFFERENT_RESOURCES * NUMBER_OF_PLAYERS];
+
+        setThiefLand((byte) 8);
     }
 
     public State(State state) {
@@ -115,6 +116,10 @@ public class State {
     public void subResource(int playerIndex, ResourceType type, byte amount) {
         int index = playerIndex * PLAYER_ALLOCATION;
         gameState[index + type.getIndex()] -= amount;
+
+        if(gameState[index + type.getIndex()] < 0) {
+            System.out.println("Break");
+        }
     }
 
     /**
@@ -131,7 +136,9 @@ public class State {
 
     public byte getResourceIncome(int playerIndex, ResourceType type, int dice) {
         int index = playerIndex * PLAYER_ALLOCATION + RESOURCE_INCOME_OFFSET;
-        return gameState[index + type.getIndex() + diceIndex(dice)];
+        int resourceIndex = type.getIndex() * DICE_VALUES;
+
+        return gameState[index + resourceIndex + diceIndex(dice)];
     }
 
     public void setResourceIncome(int playerIndex, ResourceType type, int dice, byte amount) {
@@ -153,6 +160,10 @@ public class State {
         int resourceIndex = type.getIndex() * DICE_VALUES;
 
         gameState[index + resourceIndex + diceIndex(dice)] -= amount;
+
+        if(gameState[index + resourceIndex + diceIndex(dice)] < 0) {
+            System.out.println("Break");
+        }
     }
 
 
@@ -243,14 +254,12 @@ public class State {
 
         byte landIndex = gameState[index + 1 + offset];
 
+        gameState[index + 1 + offset] = 0;
+        gameState[index]--;
+
         byte numberOfVillages = gameState[index];
-        if(numberOfVillages == 1) {
-            gameState[index] = 0;
-            gameState[index + 1] = 0;
-        } else {
-            gameState[index]--;
-            numberOfVillages = gameState[index];
-            gameState[index + 1 + offset] = gameState[index + 1 + numberOfVillages - 1];
+        if(numberOfVillages != 0) {
+            gameState[index + 1 + offset] = gameState[index + 1 + numberOfVillages];
         }
 
         return landIndex;
@@ -365,7 +374,7 @@ public class State {
         }
     }
 
-    public int getThiefLand() {
+    public byte getThiefTerrain() {
         int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS + LANDS;
         return gameState[index];
     }

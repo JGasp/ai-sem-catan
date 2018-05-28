@@ -13,10 +13,12 @@ import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Rule {
 
-    private static final int WINNING_POINTS = 8;
+    public static final Random random = new Random();
+    private static final int WINNING_POINTS = 10;
 
     private Game game;
 
@@ -37,8 +39,8 @@ public class Rule {
     }
 
     public int throwDice() {
-        int dice1 = (int) (Math.random() * 5 + 1);
-        int dice2 = (int) (Math.random() * 5 + 1);
+        int dice1 = random.nextInt(5) + 1;
+        int dice2 = random.nextInt(5) + 1;
 
         return dice1 + dice2;
     }
@@ -68,7 +70,7 @@ public class Rule {
     }
 
     private void canBuildRoad(State state, int playerIndex, List<Move> moves) {
-        if(hasResourceToBuildRoad(state, playerIndex)) {
+        if(hasResourceToBuildRoad(state, playerIndex) && state.isAnyRoadAvailable(playerIndex)) {
             byte roads = state.getNumberOfRoads(playerIndex);
             for(int i=0; i<roads; i++) {
 
@@ -123,7 +125,7 @@ public class Rule {
     }
 
     private void canBuildVillage(State state, int playerIndex, List<Move> moves) {
-        if(hasResourceToBuildVillage(state, playerIndex)) {
+        if(hasResourceToBuildVillage(state, playerIndex) && state.isAnyVillageAvailable(playerIndex)) {
 
             int roads = state.getNumberOfRoads(playerIndex);
             for(int i=0; i<roads; i++) {
@@ -155,7 +157,7 @@ public class Rule {
 
 
     private void canBuildCity(State state, int playerIndex, List<Move> moves) {
-        if(hasResourceToBuildCity(state, playerIndex)) {
+        if(hasResourceToBuildCity(state, playerIndex) && state.isAnyCityAvailable(playerIndex)) {
 
             int villages = state.getNumberOfVillages(playerIndex);
             for(byte i=0; i<villages; i++) {

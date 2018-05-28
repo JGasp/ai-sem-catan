@@ -26,6 +26,9 @@ public class Map {
         initTerrainPoint();
         initLandPoint();
         initRoadPoint();
+
+
+        //validateLandRoads();
     }
 
 
@@ -55,7 +58,7 @@ public class Map {
         t.add(new Terrain(6, 10, ResourceType.SHEEP));
 
         t.add(new Terrain(7, 5, ResourceType.CLAY));
-        t.add(new Terrain(8, -1, ResourceType.NOTHING));
+        t.add(new Terrain(8, -1, null));
         t.add(new Terrain(9, 11, ResourceType.CLAY));
         t.add(new Terrain(10, 5, ResourceType.WHEAT));
         t.add(new Terrain(11, 9, ResourceType.WHEAT));
@@ -112,7 +115,7 @@ public class Map {
         lands.add(new Land(34, 3, gt(10), gt(14), gt(15)));
         lands.add(new Land(35, 3, gt(10), gt(11), gt(15)));
         lands.add(new Land(36, 3, gt(11), gt(15)));
-        lands.add(new Land(37, 3, gt(11)));
+        lands.add(new Land(37, 2, gt(11)));
 
         lands.add(new Land(38, 2, gt(12)));
         lands.add(new Land(39, 3, gt(12), gt(16)));
@@ -122,7 +125,7 @@ public class Map {
         lands.add(new Land(43, 3, gt(14), gt(17), gt(18)));
         lands.add(new Land(44, 3, gt(14), gt(15), gt(18)));
         lands.add(new Land(45, 3, gt(15), gt(18)));
-        lands.add(new Land(46, 3, gt(15)));
+        lands.add(new Land(46, 2, gt(15)));
 
         lands.add(new Land(47, 2, gt(16)));
         lands.add(new Land(48, 2, gt(16)));
@@ -213,7 +216,7 @@ public class Map {
         roads.add(gl(45).initRoad(65, gl(53)));
 
         roads.add(gl(47).initRoad(66, gl(48)));
-        roads.add(gl(46).initRoad(67, gl(49)));
+        roads.add(gl(48).initRoad(67, gl(49)));
         roads.add(gl(49).initRoad(68, gl(50)));
         roads.add(gl(50).initRoad(69, gl(51)));
         roads.add(gl(51).initRoad(70, gl(52)));
@@ -222,14 +225,14 @@ public class Map {
     }
 
     private void initTrading() {
-        gl(0).setClayTrading(true);
-        gl(1).setClayTrading(true);
+        gl(0).setTrading(ResourceType.CLAY);
+        gl(1).setTrading(ResourceType.CLAY);
 
         gl(4).setAnyTrading(true);
         gl(5).setAnyTrading(true);
 
-        gl(14).setSheepTrading(true);
-        gl(15).setSheepTrading(true);
+        gl(14).setTrading(ResourceType.SHEEP);
+        gl(15).setTrading(ResourceType.SHEEP);
 
         gl(26).setAnyTrading(true);
         gl(37).setAnyTrading(true);
@@ -240,11 +243,11 @@ public class Map {
         gl(50).setAnyTrading(true);
         gl(51).setAnyTrading(true);
 
-        gl(47).setWheatTrading(true);
-        gl(48).setWheatTrading(true);
+        gl(47).setTrading(ResourceType.WHEAT);
+        gl(48).setTrading(ResourceType.WHEAT);
 
-        gl(28).setWoodTrading(true);
-        gl(38).setWoodTrading(true);
+        gl(28).setTrading(ResourceType.WOOD);
+        gl(38).setTrading(ResourceType.WOOD);
 
         gl(7).setAnyTrading(true);
         gl(17).setAnyTrading(true);
@@ -487,6 +490,16 @@ public class Map {
         }
     }
 
+
+    private void validateLandRoads() {
+        for(Land l : lands) {
+            for(int i=0; i<l.getRoads().length; i++){
+                if(l.getRoads()[i] == null) {
+                    System.out.println("Break");
+                }
+            }
+        }
+    }
 
 
 

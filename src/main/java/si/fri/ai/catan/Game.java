@@ -10,7 +10,10 @@ import si.fri.ai.catan.rules.moves.MoveRobber;
 import si.fri.ai.catan.rules.moves.PlacingVillage;
 import si.fri.ai.catan.rules.moves.base.Move;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class Game {
 
@@ -50,20 +53,22 @@ public class Game {
                  PlacingVillage m = p.playPlacingTurn(state);
                  m.make(state);
 
-                 updateGui();
+                 //updateGui();
             }
         }
     }
 
     private void mainGameLoop() {
-
-        State state = new State();
+        int round = 0;
 
         int playerIndex = 0;
         int winnerIndex = rule.getWinner(state);
 
-        while(winnerIndex != -1) {
+        while(winnerIndex == -1) {
+            round++;
             int dice = rule.throwDice();
+
+            System.out.printf("Round %d \t Dice: %d \n", round, dice);
 
             Player p = playerList[playerIndex];
 
@@ -94,8 +99,12 @@ public class Game {
             }
 
             updateGui();
+
+            winnerIndex = rule.getWinner(state);
         }
 
+        updateGui();
+        System.out.println("Winner was player: " + winnerIndex);
     }
 
 
@@ -114,7 +123,34 @@ public class Game {
 
     private void updateGui(){
         mapPanel.updateState(state);
+        waitForSpace();
+    }
 
 
+    private static boolean pressed = false;
+    public static void waitForSpace() {
+        try {
+            final CountDownLatch latch = new CountDownLatch(1);
+            KeyEventDispatcher dispatcher = new KeyEventDispatcher() {
+
+                @Override
+                public boolean dispatchKeyEvent(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                        if (pressed) {
+                            pressed = false;
+                        } else {
+                            latch.countDown();
+                            pressed = true;
+                        }
+                    }
+                    return false;
+                }
+            };
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher);
+            latch.await();
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(dispatcher);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

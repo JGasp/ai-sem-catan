@@ -2,6 +2,7 @@ package si.fri.ai.catan.map.parts;
 
 
 import si.fri.ai.catan.map.parts.positon.Point;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 public class Land {
 
@@ -13,11 +14,7 @@ public class Land {
 
     private int roadsCount = 0;
 
-    private boolean clayTrading = false;
-    private boolean woodTrading = false;
-    private boolean wheatTrading = false;
-    private boolean ironTrading = false;
-    private boolean sheepTrading = false;
+    private ResourceType trading = null;
     private boolean anyTrading = false;
 
     public Land(int index, int roads, Terrain... terrains) {
@@ -51,56 +48,25 @@ public class Land {
         return road;
     }
 
-    public void setClayTrading(boolean clayTrading) {
-        this.clayTrading = clayTrading;
+    public int getRoadsCount() {
+        return roadsCount;
     }
 
-    public void setWoodTrading(boolean woodTrading) {
-        this.woodTrading = woodTrading;
-    }
-
-    public void setWheatTrading(boolean wheatTrading) {
-        this.wheatTrading = wheatTrading;
-    }
-
-    public void setIronTrading(boolean ironTrading) {
-        this.ironTrading = ironTrading;
-    }
-
-    public void setSheepTrading(boolean sheepTrading) {
-        this.sheepTrading = sheepTrading;
-    }
 
     public void setAnyTrading(boolean anyTrading) {
         this.anyTrading = anyTrading;
     }
 
-    public int getRoadsCount() {
-        return roadsCount;
-    }
-
-    public boolean isClayTrading() {
-        return clayTrading;
-    }
-
-    public boolean isWoodTrading() {
-        return woodTrading;
-    }
-
-    public boolean isWheatTrading() {
-        return wheatTrading;
-    }
-
-    public boolean isIronTrading() {
-        return ironTrading;
-    }
-
-    public boolean isSheepTrading() {
-        return sheepTrading;
-    }
-
     public boolean isAnyTrading() {
         return anyTrading;
+    }
+
+    public ResourceType getTrading() {
+        return trading;
+    }
+
+    public void setTrading(ResourceType trading) {
+        this.trading = trading;
     }
 
     public Point getPoint() {

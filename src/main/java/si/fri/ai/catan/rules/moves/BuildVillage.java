@@ -28,6 +28,12 @@ public class BuildVillage extends Move {
 
         Land l = game.getMap().gl(landIndex);
 
+        if(l.isAnyTrading()) {
+            state.activateAnyResourceTrading(playerIndex);
+        } else if(l.getTrading() != null) {
+            state.activateResourceTrading(playerIndex, l.getTrading());
+        }
+
         for(Terrain t : l.getTerrains()) {
             addTerrain(t, state, playerIndex);
         }

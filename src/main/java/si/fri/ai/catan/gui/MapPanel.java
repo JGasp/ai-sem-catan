@@ -7,6 +7,7 @@ import si.fri.ai.catan.map.parts.Road;
 import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.map.parts.positon.Point;
 import si.fri.ai.catan.map.parts.positon.Vector;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +20,9 @@ public class MapPanel extends JPanel {
     private static final int Y_OFFSET = 500;
     private static final int X_OFFSET = 900;
 
+    private static final Font statsFont = new Font(Font.MONOSPACED, Font.PLAIN, 18);
+    private static final Font mapFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+
     private JFrame frame;
 
     private Map map;
@@ -30,7 +34,7 @@ public class MapPanel extends JPanel {
 
 
         frame = new JFrame();
-        frame.setPreferredSize(new Dimension(1920, 1080));
+        frame.setPreferredSize(new Dimension(1350, 1080));
         frame.setContentPane(this);
         frame.pack();
         frame.setVisible(true);
@@ -47,6 +51,8 @@ public class MapPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        g.setFont(mapFont);
+
         g.setColor(Color.CYAN);
         g.fillRect(0,0, 1920, 1080);
 
@@ -55,26 +61,42 @@ public class MapPanel extends JPanel {
         }
 
         if(state != null) {
+            g.setFont(statsFont);
+
+            g.setColor(Color.BLACK);
+            char[] textIndex = "RT \t Wood \t Iron \t Clay \t Wheat \t Sheep".toCharArray();
+            g.drawChars(textIndex, 0, textIndex.length, 50, 30);
+
+            int yOffsetBottom = Y_OFFSET * 2 - State.NUMBER_OF_PLAYERS * 30 - 30;
+            textIndex = "Score \t Roads \t Villages \t City".toCharArray();
+            g.drawChars(textIndex, 0, textIndex.length, 50, yOffsetBottom);
+
+            paintThief(g, map.gt(state.getThiefTerrain()).getPoint());
+
             for(int pi=0; pi<State.NUMBER_OF_PLAYERS; pi++) {
+
+                paintStats(g, state, pi);
 
                 int numberOfRoads = state.getNumberOfRoads(pi);
                 for(int ri=0; ri<numberOfRoads; ri++) {
                     Road r = map.gr(state.getRoadLocation(pi, ri));
-                    paintRoad(g, r.getFrom().getPoint(), r.getTo().getPoint(), pi);
+                    paintRoadFigure(g, r.getFrom().getPoint(), r.getTo().getPoint(), pi);
                 }
 
                 int numberOfVillages = state.getNumberOfVillages(pi);
                 for(int vi=0; vi<numberOfVillages; vi++) {
                     Land l = map.gl(state.getVillagesLocation(pi, vi));
-                    paintVillage(g, l.getPoint(), pi);
+                    paintVillageFigure(g, l.getPoint(), pi);
                 }
 
                 int numberOfCities = state.getNumberOfCities(pi);
                 for(int ci=0; ci<numberOfCities; ci++) {
                     Land l = map.gl(state.getCityLocation(pi, ci));
-                    paintCity(g, l.getPoint(), pi);
+                    paintCityFigure(g, l.getPoint(), pi);
                 }
             }
+
+            g.setFont(mapFont);
         }
 
         for(Land l : map.getLands()) {
@@ -87,7 +109,61 @@ public class MapPanel extends JPanel {
 
     }
 
-    protected void paintTerrain(Graphics g, Terrain t) {
+    private void paintStats(Graphics g, State state, int playerIndex) {
+        g.setColor(playerColors[playerIndex]);
+
+
+        int roads = state.getNumberOfRoads(playerIndex);
+        int villages = state.getNumberOfVillages(playerIndex);
+        int cities = state.getNumberOfCities(playerIndex);
+        int points = villages + cities * 2;
+
+        int yOffsetBottom = Y_OFFSET * 2 - (State.NUMBER_OF_PLAYERS - playerIndex) * 30;
+        char[] textIndex = String.format("%5d \t %5d \t %7d \t %4d", points, roads, villages, cities).toCharArray();
+        g.drawChars(textIndex, 0, textIndex.length, 50, yOffsetBottom);
+
+
+        int wood = state.getResource(playerIndex, ResourceType.WOOD);
+        int iron = state.getResource(playerIndex, ResourceType.IRON);
+        int clay = state.getResource(playerIndex, ResourceType.CLAY);
+        int wheat = state.getResource(playerIndex, ResourceType.WHEAT);
+        int sheep = state.getResource(playerIndex, ResourceType.SHEEP);
+
+        textIndex = String.format("[$$] \t %3d \t %3d \t %3d \t %3d \t %3d", wood, iron, clay, wheat, sheep).toCharArray();
+        int yOffset = playerIndex * 250 + 60;
+        g.drawChars(textIndex, 0, textIndex.length, 50, yOffset);
+
+
+        String anyTr = state.isAnyResourceTrading(playerIndex) ? "*" : "-";
+        String woodTr = state.isResourceTrading(playerIndex, ResourceType.WOOD) ? "*" : "-";
+        String ironTr = state.isResourceTrading(playerIndex, ResourceType.IRON) ? "*" : "-";
+        String clayTr = state.isResourceTrading(playerIndex, ResourceType.CLAY) ? "*" : "-";
+        String wheatTr = state.isResourceTrading(playerIndex, ResourceType.WHEAT) ? "*" : "-";
+        String sheepTr = state.isResourceTrading(playerIndex, ResourceType.SHEEP) ? "*" : "-";
+
+        textIndex = String.format("[ %s] \t %3s \t %3s \t %3s \t %3s \t %3s", anyTr, woodTr, ironTr, clayTr, wheatTr, sheepTr).toCharArray();
+        yOffset += 15;
+        g.drawChars(textIndex, 0, textIndex.length, 50, yOffset);
+
+
+        for(int dice=2; dice<=12; dice++) {
+            if(dice != 7) {
+                int woodInc = state.getResourceIncome(playerIndex, ResourceType.WOOD, dice);
+                int ironInc = state.getResourceIncome(playerIndex, ResourceType.IRON, dice);
+                int clayInc = state.getResourceIncome(playerIndex, ResourceType.CLAY, dice);
+                int wheatInc = state.getResourceIncome(playerIndex, ResourceType.WHEAT, dice);
+                int sheepInc = state.getResourceIncome(playerIndex, ResourceType.SHEEP, dice);
+
+                textIndex = String.format("[%2d] \t %3d \t %3d \t %3d \t %3d \t %3d", dice, woodInc, ironInc, clayInc, wheatInc, sheepInc).toCharArray();
+
+                yOffset += 15;
+
+                g.drawChars(textIndex, 0, textIndex.length, 50, yOffset);
+            }
+        }
+    }
+
+    private void paintTerrain(Graphics g, Terrain t) {
 
         Point p1 = t.getPoint().add(Vector.landUpRight);
         Point p2 = p1.add(Vector.landDownRight);
@@ -117,20 +193,27 @@ public class MapPanel extends JPanel {
         Polygon polygon = new Polygon(xPoints, yPoints, 6);
 
         Color c = Color.YELLOW;
-        switch (t.getType()) {
-            case WHEAT: c = Color.ORANGE; break;
-            case IRON: c = Color.GRAY; break;
-            case WOOD: c = Color.GREEN.darker(); break;
-            case SHEEP: c = Color.GREEN.brighter(); break;
-            case CLAY: c = Color.RED.darker(); break;
+        if(t.getType() != null) {
+            switch (t.getType()) {
+                case WHEAT: c = Color.ORANGE; break;
+                case IRON: c = Color.GRAY; break;
+                case WOOD: c = Color.GREEN.darker(); break;
+                case SHEEP: c = Color.GREEN.brighter(); break;
+                case CLAY: c = Color.RED.darker(); break;
+            }
         }
         g.setColor(c);
 
         g.fillPolygon(polygon);
 
         g.setColor(Color.BLACK);
+        String type = "Desert";
+        if(t.getType() != null) {
+            type = t.getType().name();
+        }
+
         char[] textIndex = String.format("Index: %d", t.getIndex()).toCharArray();
-        char[] textType = String.format("Type: %s", t.getType().name()).toCharArray();
+        char[] textType = String.format("Type: %s", type).toCharArray();
         char[] textDice = String.format("Dice: %d", t.getDice()).toCharArray();
 
         g.drawChars(textIndex, 0, textIndex.length,
@@ -147,7 +230,15 @@ public class MapPanel extends JPanel {
 
     private void paintLand(Graphics g, Land l) {
         g.setColor(Color.BLACK);
-        char[] textIndex = String.format("%d", l.getIndex()).toCharArray();
+
+        String trading = "";
+        if(l.isAnyTrading()) {
+            trading = "|*";
+        } else if(l.getTrading() != null) {
+            trading = "|" + l.getTrading().name().substring(0, 1);
+        }
+
+        char[] textIndex = String.format("%d%s", l.getIndex(), trading).toCharArray();
 
         g.drawChars(textIndex, 0, textIndex.length,
                 (int) l.getPoint().getX() + X_OFFSET, (int) l.getPoint().getY() + Y_OFFSET);
@@ -161,53 +252,53 @@ public class MapPanel extends JPanel {
                 (int) r.getPoint().getX() + X_OFFSET,  (int) r.getPoint().getY() + Y_OFFSET);
     }
 
-    private void paintVillage(Graphics g, Point p, int playerIndex) {
+    private void paintVillageFigure(Graphics g, Point p, int playerIndex) {
         g.setColor(playerColors[playerIndex]);
 
         int[] xPoints = new int[5];
-        xPoints[0] = (int) (p.getX() - 6);
-        xPoints[1] = (int) (p.getX() - 6);
-        xPoints[2] = (int) (p.getX());
-        xPoints[3] = (int) (p.getX() + 6);
-        xPoints[4] = (int) (p.getX() + 6);
+        xPoints[0] = (int) (p.getX() - 8) + X_OFFSET;
+        xPoints[1] = (int) (p.getX() - 8) + X_OFFSET;
+        xPoints[2] = (int) (p.getX()) + X_OFFSET;
+        xPoints[3] = (int) (p.getX() + 8) + X_OFFSET;
+        xPoints[4] = (int) (p.getX() + 8) + X_OFFSET;
 
         int[] yPoints = new int[5];
-        yPoints[0] = (int) (p.getY() + 6);
-        yPoints[1] = (int) (p.getY() - 6);
-        yPoints[2] = (int) (p.getY() - 12);
-        yPoints[3] = (int) (p.getY() - 6);
-        yPoints[4] = (int) (p.getY() + 6);
+        yPoints[0] = (int) (p.getY() + 8) + Y_OFFSET;
+        yPoints[1] = (int) (p.getY() - 8) + Y_OFFSET;
+        yPoints[2] = (int) (p.getY() - 16) + Y_OFFSET;
+        yPoints[3] = (int) (p.getY() - 8) + Y_OFFSET;
+        yPoints[4] = (int) (p.getY() + 8) + Y_OFFSET;
 
         Polygon polygon = new Polygon(xPoints, yPoints, 5);
 
         g.fillPolygon(polygon);
     }
 
-    private void paintCity(Graphics g, Point p, int playerIndex) {
+    private void paintCityFigure(Graphics g, Point p, int playerIndex) {
         g.setColor(playerColors[playerIndex]);
 
         int[] xPoints = new int[6];
-        xPoints[0] = (int) (p.getX() - 12);
-        xPoints[1] = (int) (p.getX() - 12);
-        xPoints[2] = (int) (p.getX());
-        xPoints[2] = (int) (p.getX() + 6);
-        xPoints[3] = (int) (p.getX() + 12);
-        xPoints[4] = (int) (p.getX() + 12);
+        xPoints[0] = (int) (p.getX() - 8) + X_OFFSET;
+        xPoints[1] = (int) (p.getX() - 8) + X_OFFSET;
+        xPoints[2] = (int) (p.getX()) + X_OFFSET;
+        xPoints[3] = (int) (p.getX() + 4) + X_OFFSET;
+        xPoints[4] = (int) (p.getX() + 8) + X_OFFSET;
+        xPoints[5] = (int) (p.getX() + 8) + X_OFFSET;
 
         int[] yPoints = new int[6];
-        yPoints[0] = (int) (p.getY() + 6);
-        yPoints[1] = (int) (p.getY() - 6);
-        yPoints[1] = (int) (p.getY() - 6);
-        yPoints[2] = (int) (p.getY() - 12);
-        yPoints[3] = (int) (p.getY() - 6);
-        yPoints[4] = (int) (p.getY() + 6);
+        yPoints[0] = (int) (p.getY() + 8) + Y_OFFSET;
+        yPoints[1] = (int) (p.getY() - 8) + Y_OFFSET;
+        yPoints[2] = (int) (p.getY() - 8) + Y_OFFSET;
+        yPoints[3] = (int) (p.getY() - 16) + Y_OFFSET;
+        yPoints[4] = (int) (p.getY() - 8) + Y_OFFSET;
+        yPoints[5] = (int) (p.getY() + 8) + Y_OFFSET;
 
         Polygon polygon = new Polygon(xPoints, yPoints, 6);
 
         g.fillPolygon(polygon);
     }
 
-    private void paintRoad(Graphics g, Point from, Point to, int playerIndex) {
+    private void paintRoadFigure(Graphics g, Point from, Point to, int playerIndex) {
         g.setColor(playerColors[playerIndex]);
 
         Graphics2D g2 = (Graphics2D) g;
@@ -218,9 +309,29 @@ public class MapPanel extends JPanel {
         Point p1 = from.add(v);
         Point p2 = to.add(v.neg());
 
-        g.drawLine((int) p1.getX(), (int) p1.getY(),
-                (int) p2.getX(), (int) p2.getY());
+        g.drawLine((int) p1.getX() + X_OFFSET, (int) p1.getY() + Y_OFFSET,
+                (int) p2.getX() + X_OFFSET, (int) p2.getY() + Y_OFFSET);
 
+    }
+
+    private void paintThief(Graphics g, Point p) {
+        g.setColor(Color.BLACK);
+
+        int[] xPoints = new int[4];
+        xPoints[0] = (int) (p.getX() - 8) + X_OFFSET;
+        xPoints[1] = (int) (p.getX()) + X_OFFSET;
+        xPoints[2] = (int) (p.getX() + 8) + X_OFFSET;
+        xPoints[3] = (int) (p.getX()) + X_OFFSET;
+
+        int[] yPoints = new int[4];
+        yPoints[0] = (int) (p.getY()) + Y_OFFSET + 60;
+        yPoints[1] = (int) (p.getY() - 8) + Y_OFFSET + 60;
+        yPoints[2] = (int) (p.getY()) + Y_OFFSET + 60;
+        yPoints[3] = (int) (p.getY() + 8) + Y_OFFSET + 60;
+
+        Polygon polygon = new Polygon(xPoints, yPoints, 4);
+
+        g.fillPolygon(polygon);
     }
 
 }

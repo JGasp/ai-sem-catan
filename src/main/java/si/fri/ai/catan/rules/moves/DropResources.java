@@ -18,7 +18,7 @@ public class DropResources extends Move {
 
     @Override
     public void make(State state) {
-        subResource(state, type, amount);
+        state.subResource(playerIndex, type, (byte) amount);
     }
 
 }

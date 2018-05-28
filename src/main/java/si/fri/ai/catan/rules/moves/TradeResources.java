@@ -22,9 +22,7 @@ public class TradeResources extends Move {
 
     @Override
     public void make(State state) {
-
-        subResource(state, tradeIn, ratio);
+        state.subResource(playerIndex, tradeIn, (byte) ratio);
         state.addResource(playerIndex, tradeOut, (byte) 1);
-
     }
 }

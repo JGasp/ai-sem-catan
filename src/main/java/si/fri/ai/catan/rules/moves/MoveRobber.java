@@ -2,9 +2,12 @@ package si.fri.ai.catan.rules.moves;
 
 import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
+import si.fri.ai.catan.dto.ResourceAmount;
 import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Terrain;
+import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.base.Move;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 public class MoveRobber extends Move {
 
@@ -20,35 +23,65 @@ public class MoveRobber extends Move {
     @Override
     public void make(State state) {
 
-        Terrain from = game.getMap().gt(state.getThiefLand());
-        for(Land l : from.getLands()) {
-            byte landOccupation = state.getLand(l.getIndex());
+        Terrain from = game.getMap().gt(state.getThiefTerrain());
+        if(from.getType() != null) {
+            for(Land l : from.getLands()) {
+                byte landOccupation = state.getLand(l.getIndex());
 
-            if(landOccupation != 0) {
-                int loPlayerIndex = landOccupation / State.FIGURE_TAG_OFFSET;
-                int figure = landOccupation % State.FIGURE_TAG_OFFSET;
+                if(landOccupation != 0) {
+                    int loPlayerIndex = landOccupation / State.FIGURE_TAG_OFFSET;
+                    int figure = landOccupation % State.FIGURE_TAG_OFFSET;
 
-                if(figure > 0) {
                     state.addResourceIncome(loPlayerIndex, from.getType(), from.getDice(), (byte) figure);
                 }
             }
         }
 
         Terrain to = game.getMap().gt(terrainIndex);
-        for(Land l : to.getLands()) {
-            byte landOccupation = state.getLand(l.getIndex());
+        if(to.getType() != null) {
+            for(Land l : to.getLands()) {
+                byte landOccupation = state.getLand(l.getIndex());
 
-            if(landOccupation != 0) {
-                int loPlayerIndex = landOccupation / State.FIGURE_TAG_OFFSET;
-                int figure = landOccupation % State.FIGURE_TAG_OFFSET;
+                if(landOccupation != 0) {
+                    int loPlayerIndex = landOccupation / State.FIGURE_TAG_OFFSET;
+                    int figure = landOccupation % State.FIGURE_TAG_OFFSET;
 
-                if(figure > 0) {
                     state.subResourceIncome(loPlayerIndex, to.getType(), to.getDice(), (byte) figure);
                 }
             }
         }
 
         state.setThiefLand(terrainIndex);
+
+
+        if(robbingPlayerIndex != -1) {
+            int index = 0;
+            int totalAmount = 0;
+            ResourceAmount[] resourceAmounts = new ResourceAmount[5];
+
+            for(ResourceType rt : ResourceType.values()) {
+                int amount = state.getResource(robbingPlayerIndex, rt);
+                totalAmount += amount;
+                resourceAmounts[index++] = new ResourceAmount(rt, amount);
+            }
+
+            if(totalAmount > 0) {
+                int randomResource = Rule.random.nextInt(totalAmount);
+
+                int checked = 0;
+                for(ResourceAmount ra : resourceAmounts) {
+                    if(ra.getAmount() > 0) {
+                        checked += ra.getAmount();
+
+                        if(checked <= randomResource) {
+                            state.addResource(playerIndex, ra.getType(), (byte) 1);
+                            state.subResource(robbingPlayerIndex, ra.getType(), (byte) 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

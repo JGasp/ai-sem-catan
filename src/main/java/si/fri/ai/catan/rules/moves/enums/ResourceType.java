@@ -5,10 +5,10 @@ public enum ResourceType {
     IRON(1),
     WOOD(2),
     SHEEP(3),
-    CLAY(4),
-    NOTHING(5);
+    CLAY(4);
 
-    int index;
+    private int index;
+
     ResourceType(int index) {
         this.index = index;
     }
