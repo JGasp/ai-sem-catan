@@ -29,7 +29,7 @@ public class State {
                     FIGURES_BUILD + CITY_FIGURES;
 
 
-    private static final int ROADS = 70;
+    private static final int ROADS = 72;
     private static final int LANDS = 54;
 
     private static final int THIEF = 1;

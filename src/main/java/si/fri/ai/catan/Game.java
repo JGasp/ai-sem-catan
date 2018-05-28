@@ -28,7 +28,7 @@ public class Game {
     public Game() {
         map = new Map();
         rule = new Rule(this);
-        mapPanel = new MapPanel(map);
+        //mapPanel = new MapPanel(map);
 
         state = new State();
         initPlayers();
@@ -68,7 +68,7 @@ public class Game {
             round++;
             int dice = rule.throwDice();
 
-            System.out.printf("Round %d \t Dice: %d \n", round, dice);
+            //System.out.printf("Round %d \t Dice: %d \n", round, dice);
 
             Player p = playerList[playerIndex];
 
@@ -98,12 +98,17 @@ public class Game {
                 playerIndex = 0;
             }
 
-            updateGui();
+            //updateGui();
 
             winnerIndex = rule.getWinner(state);
+
+            if(round > 10000) {
+                System.out.println("Game took to long");
+                return;
+            }
         }
 
-        updateGui();
+        //updateGui();
         System.out.println("Winner was player: " + winnerIndex);
     }
 
@@ -123,7 +128,7 @@ public class Game {
 
     private void updateGui(){
         mapPanel.updateState(state);
-        waitForSpace();
+        //waitForSpace();
     }
 
 

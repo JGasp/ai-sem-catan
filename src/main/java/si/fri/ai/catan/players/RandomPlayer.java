@@ -30,14 +30,11 @@ public class RandomPlayer extends Player {
             if(state.getLand(randomLand) == 0) {
                 Land l = getGame().getMap().gl(randomLand);
 
-                while(true) {
-                    byte randomLandRoad = (byte) Rule.random.nextInt(l.getRoads().length - 1);
+                byte randomLandRoad = (byte) Rule.random.nextInt(l.getRoads().length - 1);
+                Road r = l.getRoads()[randomLandRoad];
 
-                    Road r = l.getRoads()[randomLandRoad];
-
-                    if(state.getRoad(r.getIndex()) == 0) {
-                        return new PlacingVillage(getGame(), getPlayerIndex(), randomLand, r.getIndex());
-                    }
+                if(state.getRoad(r.getIndex()) == 0) {
+                    return new PlacingVillage(getGame(), getPlayerIndex(), randomLand, r.getIndex());
                 }
             }
         }
