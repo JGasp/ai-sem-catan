@@ -1,6 +1,7 @@
 package si.fri.ai.catan.map.parts;
 
 
+import si.fri.ai.catan.State;
 import si.fri.ai.catan.map.parts.positon.Point;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
@@ -29,12 +30,26 @@ public class Land {
 
     public Road getConnectingRoad(Land land) {
         for(Road r : roads) {
-            if(r.getOther(this) == land) {
+            if(r.getNeighbour(this) == land) {
                 return r;
             }
         }
 
         return null;
+    }
+
+    public boolean isPlayerConnected(State state, int playerIndex) {
+        for(Road r : roads) {
+
+            byte road = state.getRoad(r.getIndex());
+
+            if(road != 0) {
+                if(road / 10 == playerIndex) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public byte getIndex() {
@@ -56,10 +71,6 @@ public class Land {
         that.roads[that.roadsCount++] = road;
 
         return road;
-    }
-
-    public int getRoadsCount() {
-        return roadsCount;
     }
 
 

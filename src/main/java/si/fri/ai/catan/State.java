@@ -10,7 +10,7 @@ public class State {
 
     private static final int DICE_VALUES = 10;
 
-    private static final int DIFFERENT_RESOURCES = 5;
+    public static final int DIFFERENT_RESOURCES = 5;
     private static final int RESOURCES_INCOME = DIFFERENT_RESOURCES * DICE_VALUES;
     private static final int DIFFERENT_TRADING_TYPES = DIFFERENT_RESOURCES + 1;
 
@@ -337,23 +337,23 @@ public class State {
         switch (diceSum) {
             case 2:
             case 12:
-                return 1/36;
+                return 1f/36f;
             case 3:
             case 11:
-                return 2/36;
+                return 2f/36f;
             case 4:
             case 10:
-                return 3/36;
+                return 3f/36f;
             case 5:
             case 9:
-                return 4/36;
+                return 4f/36f;
             case 6:
             case 8:
-                return 5/36;
+                return 5f/36f;
             case 7:
-                return 6/36;
+                return 6f/36f;
             default:
-                return 0;
+                return 0f;
         }
     }
 
@@ -375,6 +375,7 @@ public class State {
     public void updateResourceAmount(int dice, int playerIndex) {
         for(ResourceType rt: ResourceType.values()) {
             addResource(playerIndex, rt, getResourceIncome(playerIndex, rt, dice));
+            calculateResourceAvgIncome(playerIndex, rt);
         }
     }
 

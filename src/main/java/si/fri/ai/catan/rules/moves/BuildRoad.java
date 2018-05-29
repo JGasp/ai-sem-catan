@@ -22,4 +22,16 @@ public class BuildRoad extends Move {
 
         state.buildRoad(playerIndex, roadIndex);
     }
+
+    public byte getRoadIndex() {
+        return roadIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "BuildRoad{" +
+                "roadIndex=" + roadIndex +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }

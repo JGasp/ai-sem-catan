@@ -1,5 +1,6 @@
 package si.fri.ai.catan.map.parts;
 
+import si.fri.ai.catan.State;
 import si.fri.ai.catan.map.parts.positon.Point;
 
 public class Road {
@@ -33,12 +34,16 @@ public class Road {
         return point;
     }
 
-    public Land getOther(Land land) {
+    public Land getNeighbour(Land land) {
         if(from == land) {
             return to;
         } else {
             return from;
         }
+    }
+
+    public boolean areLandsEmpty(State state) {
+        return state.getLand(from.getIndex()) == 0 && state.getLand(to.getIndex()) == 0;
     }
 
     public void calculatePoint() {

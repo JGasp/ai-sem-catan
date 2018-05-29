@@ -38,4 +38,13 @@ public class PlacingVillage extends Move {
         state.buildRoad(playerIndex, roadIndex);
 
     }
+
+    @Override
+    public String toString() {
+        return "PlacingVillage{" +
+                "landIndex=" + landIndex +
+                ", roadIndex=" + roadIndex +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }

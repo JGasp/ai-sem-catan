@@ -84,4 +84,13 @@ public class MoveRobber extends Move {
         }
     }
 
+
+    @Override
+    public String toString() {
+        return "MoveRobber{" +
+                "terrainIndex=" + terrainIndex +
+                ", robbingPlayerIndex=" + robbingPlayerIndex +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }

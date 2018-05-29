@@ -25,4 +25,14 @@ public class TradeResources extends Move {
         state.subResource(playerIndex, tradeIn, (byte) ratio);
         state.addResource(playerIndex, tradeOut, (byte) 1);
     }
+
+    @Override
+    public String toString() {
+        return "TradeResources{" +
+                "tradeIn=" + tradeIn +
+                ", tradeOut=" + tradeOut +
+                ", ratio=" + ratio +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }

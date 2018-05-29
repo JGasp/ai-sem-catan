@@ -2,6 +2,7 @@ package si.fri.ai.catan;
 
 import si.fri.ai.catan.gui.MapPanel;
 import si.fri.ai.catan.map.Map;
+import si.fri.ai.catan.players.HumanPlayer;
 import si.fri.ai.catan.players.RandomPlayer;
 import si.fri.ai.catan.players.base.Player;
 import si.fri.ai.catan.rules.Rule;
@@ -28,7 +29,7 @@ public class Game {
     public Game() {
         map = new Map();
         rule = new Rule(this);
-        //mapPanel = new MapPanel(map);
+        mapPanel = new MapPanel(map);
 
         state = new State();
         initPlayers();
@@ -36,8 +37,8 @@ public class Game {
 
     public void initPlayers() {
         playerList = new Player[State.NUMBER_OF_PLAYERS];
-        playerList[0] = new RandomPlayer(this, 0);
-        playerList[1] = new RandomPlayer(this,1);
+        playerList[0] = new HumanPlayer(this, 0);
+        playerList[1] = new HumanPlayer(this,1);
     }
 
 
@@ -53,7 +54,7 @@ public class Game {
                  PlacingVillage m = p.playPlacingTurn(state);
                  m.make(this, state);
 
-                 //updateGui();
+                 updateGui(m.toString());
             }
         }
     }
@@ -66,7 +67,8 @@ public class Game {
             round++;
             int dice = rule.throwDice();
 
-            //System.out.printf("Round %d \t Dice: %d \n", round, dice);
+            String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d \n", round, dice, playerIndex);
+            updateGui(roundInfo);
 
             Player p = playerList[playerIndex];
 
@@ -75,6 +77,8 @@ public class Game {
                     List<DropResources> drop = p.dropResources(state);
                     for(DropResources m : drop) {
                         m.make(this, state);
+
+                        updateGui(m.toString());
                     }
                 }
 
@@ -89,6 +93,8 @@ public class Game {
             List<Move> playerTurn = p.playTurn(state);
             for(Move m : playerTurn) {
                 m.make(this, state);
+
+                updateGui(m.toString());
             }
 
 
@@ -101,18 +107,15 @@ public class Game {
                 return;
             }
 
-            //updateGui();
-
             playerIndex++;
             if(playerIndex >= playerList.length) {
                 playerIndex = 0;
             }
         }
 
-        //updateGui();
         System.out.println("Winner was player: " + playerIndex);
+        updateGui(null);
     }
-
 
 
     public Map getMap() {
@@ -127,9 +130,9 @@ public class Game {
         return playerList.length;
     }
 
-    private void updateGui(){
-        mapPanel.updateState(state);
-        //waitForSpace();
+    private void updateGui(String roundInfo){
+        mapPanel.updateState(state, roundInfo);
+        waitForSpace();
     }
 
 

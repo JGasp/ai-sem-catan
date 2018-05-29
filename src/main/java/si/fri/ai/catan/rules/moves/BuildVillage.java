@@ -38,4 +38,16 @@ public class BuildVillage extends Move {
             addTerrain(t, state, playerIndex);
         }
     }
+
+    public byte getLandIndex() {
+        return landIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "BuildVillage{" +
+                "landIndex=" + landIndex +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }

@@ -31,4 +31,13 @@ public class BuildCity extends Move {
         }
 
     }
+
+
+    @Override
+    public String toString() {
+        return "BuildCity{" +
+                "villageIndex=" + villageIndex +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }

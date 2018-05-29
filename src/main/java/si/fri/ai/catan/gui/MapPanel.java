@@ -9,6 +9,8 @@ import si.fri.ai.catan.map.parts.positon.Point;
 import si.fri.ai.catan.map.parts.positon.Vector;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 
@@ -28,22 +30,34 @@ public class MapPanel extends JPanel {
     private Map map;
     private State state;
 
+    private int maxInfoSize = 10;
+    private List<String> roundInfo ;
+
 
     public MapPanel(Map map) {
         this.map = map;
 
+        roundInfo = new ArrayList<>();
 
         frame = new JFrame();
-        frame.setPreferredSize(new Dimension(1350, 1080));
+        frame.setPreferredSize(new Dimension(1920, 1080));
         frame.setContentPane(this);
         frame.pack();
         frame.setVisible(true);
-
     }
 
+    private void addInfo(String info) {
+        if(roundInfo.size() > maxInfoSize) {
+            roundInfo.remove(0);
+        }
+        roundInfo.add(info);
+    }
 
-    public void updateState(State state) {
+    public void updateState(State state, String roundInfo) {
         this.state = state;
+
+        if(roundInfo != null) addInfo(roundInfo);
+
         repaint();
     }
 
@@ -55,6 +69,8 @@ public class MapPanel extends JPanel {
 
         g.setColor(Color.CYAN);
         g.fillRect(0,0, 1920, 1080);
+
+        paintInfo(g);
 
         for(Terrain t : map.getTerrains()) {
             paintTerrain(g, t);
@@ -332,6 +348,20 @@ public class MapPanel extends JPanel {
         Polygon polygon = new Polygon(xPoints, yPoints, 4);
 
         g.fillPolygon(polygon);
+    }
+
+    private void paintInfo(Graphics g) {
+
+        int x = X_OFFSET * 2 - 250;
+        int y = 100;
+
+        for(String str : roundInfo) {
+            y += 15;
+
+            char[] textIndex = str.toCharArray();
+            g.drawChars(textIndex, 0, textIndex.length, x, y);
+        }
+
     }
 
 }

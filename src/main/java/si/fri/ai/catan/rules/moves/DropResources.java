@@ -21,4 +21,12 @@ public class DropResources extends Move {
         state.subResource(playerIndex, type, (byte) amount);
     }
 
+
+    @Override
+    public String toString() {
+        return "DropResources{" +
+                "amount=" + amount +
+                ", playerIndex=" + playerIndex +
+                '}';
+    }
 }
