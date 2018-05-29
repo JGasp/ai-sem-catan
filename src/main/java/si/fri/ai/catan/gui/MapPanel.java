@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class MapPanel extends JPanel {
@@ -39,9 +40,10 @@ public class MapPanel extends JPanel {
     public MapPanel(Map map) {
         this.map = map;
 
-        roundInfo = Collections.synchronizedList(new ArrayList<InfoMessage>());
+        roundInfo = new CopyOnWriteArrayList<>();
 
         frame = new JFrame();
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(1920, 1080));
         frame.setContentPane(this);
         frame.pack();
@@ -85,9 +87,10 @@ public class MapPanel extends JPanel {
             char[] textIndex = "RT \t Wood \t Iron \t Clay \t Wheat \t Sheep".toCharArray();
             g.drawChars(textIndex, 0, textIndex.length, 50, 30);
 
-            int yOffsetBottom = Y_OFFSET * 2 - State.NUMBER_OF_PLAYERS * 30 - 30;
+            int yOffsetBottom = Y_OFFSET * 2 - State.NUMBER_OF_PLAYERS * 15 - 60;
+            int xOffsetRight = X_OFFSET * 2 - 400;
             textIndex = "Score \t Roads \t Villages \t City".toCharArray();
-            g.drawChars(textIndex, 0, textIndex.length, 50, yOffsetBottom);
+            g.drawChars(textIndex, 0, textIndex.length, xOffsetRight, yOffsetBottom);
 
             paintThief(g, map.gt(state.getThiefTerrain()).getPoint());
 
@@ -136,9 +139,10 @@ public class MapPanel extends JPanel {
         int cities = state.getNumberOfCities(playerIndex);
         int score = state.getScore(playerIndex);
 
-        int yOffsetBottom = Y_OFFSET * 2 - (State.NUMBER_OF_PLAYERS - playerIndex) * 30;
+        int yOffsetBottom = Y_OFFSET * 2 - (State.NUMBER_OF_PLAYERS - playerIndex) * 15 - 45;
+        int xOffsetRight = X_OFFSET * 2 - 400;
         char[] textIndex = String.format("%5d \t %5d \t %7d \t %4d", score, roads, villages, cities).toCharArray();
-        g.drawChars(textIndex, 0, textIndex.length, 50, yOffsetBottom);
+        g.drawChars(textIndex, 0, textIndex.length, xOffsetRight, yOffsetBottom);
 
 
         int wood = state.getResource(playerIndex, ResourceType.WOOD);
@@ -148,7 +152,7 @@ public class MapPanel extends JPanel {
         int sheep = state.getResource(playerIndex, ResourceType.SHEEP);
 
         textIndex = String.format("[$$] \t %3d \t %3d \t %3d \t %3d \t %3d", wood, iron, clay, wheat, sheep).toCharArray();
-        int yOffset = playerIndex * 250 + 60;
+        int yOffset = playerIndex * 200 + 60;
         g.drawChars(textIndex, 0, textIndex.length, 50, yOffset);
 
 

@@ -21,7 +21,7 @@ public class HumanPlayer extends Player {
         super(game, playerIndex);
     }
 
-    private float getResourceIncomeScore(PlayerResAvgInc prai) {
+    private float getResourceIncomeScore(State state, PlayerResAvgInc prai) {
 
         float average = prai.getAverageValue();
         float derivation = prai.getDerivation(average);
@@ -43,6 +43,18 @@ public class HumanPlayer extends Player {
             score += 0.5f;
         }
 
+        if(state.isAnyRoadAvailable(getPlayerIndex())) {
+            score += average / 3;
+        } else {
+            score += average / 4;
+        }
+
+        for(ResourceType rt : ResourceType.values()) {
+            if(state.isResourceTrading(getPlayerIndex(), rt)) {
+                score += prai.get(rt) / 2;
+            }
+        }
+
         return score;
     }
 
@@ -61,7 +73,7 @@ public class HumanPlayer extends Player {
                 }
             }
 
-            float score = getResourceIncomeScore(tempResourceIncome);
+            float score = getResourceIncomeScore(state, tempResourceIncome);
             if(score > bestScore) {
                 bestScore = score;
                 bestLand = l;
@@ -186,9 +198,7 @@ public class HumanPlayer extends Player {
             byte occupied = state.getLand(l.getIndex());
             if(occupied != 0) {
                 int robbingPlayerIndex = occupied / 10;
-                if(robbingPlayerIndex != getPlayerIndex()) {
-                    playersToSteal.add(robbingPlayerIndex);
-                }
+                playersToSteal.add(robbingPlayerIndex);
             }
         }
 
@@ -205,8 +215,6 @@ public class HumanPlayer extends Player {
         int robbingPlayerIndex = -1;
         if(!stealPotential.isEmpty()) {
             robbingPlayerIndex = stealPotential.get(0).getPlayerIndex();
-        } else {
-            System.out.println("Break");
         }
 
         return new MoveRobber(getPlayerIndex(), bestTerrain.getIndex(), robbingPlayerIndex);
@@ -419,10 +427,16 @@ public class HumanPlayer extends Player {
                         notConnectedLand = r.getFrom();
                     }
 
-                    for(Road nr : notConnectedLand.getRoads()) {
-                        if(nr != r) {
-                            Land nnl = nr.getNeighbour(notConnectedLand);
-                            candidates.put(nnl, r);
+                    byte occupied = state.getLand(notConnectedLand.getIndex());
+                    if(occupied == 0) {
+                        for(Road nr : notConnectedLand.getRoads()) {
+                            if(nr != r) {
+                                byte nrOccupied = state.getRoad(nr.getIndex());
+                                if(nrOccupied == 0) {
+                                    Land nnl = nr.getNeighbour(notConnectedLand);
+                                    candidates.put(nnl, r);
+                                }
+                            }
                         }
                     }
                 }

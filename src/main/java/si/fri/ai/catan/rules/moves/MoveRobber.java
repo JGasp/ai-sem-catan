@@ -91,6 +91,6 @@ public class MoveRobber extends Move {
     @Override
     public String toString() {
         return String.format("[%d] Moved robber to [%d] and took [%s] from player [%d]",
-                playerIndex, terrainIndex, took.name(), robbingPlayerIndex);
+                playerIndex, terrainIndex, took == null ? "-" : took.name(), robbingPlayerIndex);
     }
 }

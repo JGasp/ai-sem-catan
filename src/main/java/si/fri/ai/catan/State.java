@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class State {
 
-    public static final int NUMBER_OF_PLAYERS = 2;
+    public static final int NUMBER_OF_PLAYERS = 4;
 
     private static final int DICE_VALUES = 10;
 

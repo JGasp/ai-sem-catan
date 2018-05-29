@@ -33,9 +33,9 @@ public class Rule {
         return false;
     }
 
-    public int throwDice() {
-        int dice1 = random.nextInt(5) + 1;
-        int dice2 = random.nextInt(5) + 1;
+    public static int throwDice() {
+        int dice1 = random.nextInt(6) + 1;
+        int dice2 = random.nextInt(6) + 1;
 
         return dice1 + dice2;
     }

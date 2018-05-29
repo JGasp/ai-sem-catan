@@ -20,18 +20,29 @@ import java.util.concurrent.CountDownLatch;
 
 public class Game {
 
+    private boolean displayGui = true;
+
     private Map map;
     private Rule rule;
     private MapPanel mapPanel;
 
     private Player[] playerList;
-
     private State state;
 
+    private Integer winnerIndex = null;
+
     public Game() {
+        this(true);
+    }
+
+    public Game(boolean displayGui) {
         map = new Map();
         rule = new Rule(this);
-        mapPanel = new MapPanel(map);
+        this.displayGui = displayGui;
+
+        if(displayGui) {
+            mapPanel = new MapPanel(map);
+        }
 
         state = new State();
         initPlayers();
@@ -41,6 +52,8 @@ public class Game {
         playerList = new Player[State.NUMBER_OF_PLAYERS];
         playerList[0] = new HumanPlayer(this, 0);
         playerList[1] = new HumanPlayer(this,1);
+        playerList[2] = new HumanPlayer(this,2);
+        playerList[3] = new HumanPlayer(this,3);
     }
 
 
@@ -67,7 +80,7 @@ public class Game {
 
         while(true) {
             round++;
-            int dice = rule.throwDice();
+            int dice = Rule.throwDice();
 
             String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d \n", round, dice, playerIndex);
             updateGui(new InfoMessage(roundInfo), false);
@@ -111,6 +124,7 @@ public class Game {
             }
 
             if(rule.isWinner(state, playerIndex)) {
+                winnerIndex = playerIndex;
                 String info = "Winner was player: " + playerIndex;
                 updateGui(new InfoMessage(info, playerIndex));
                 break;
@@ -144,15 +158,21 @@ public class Game {
         return playerList.length;
     }
 
+    public Integer getWinnerIndex() {
+        return winnerIndex;
+    }
+
     public void updateGui(InfoMessage roundInfo) {
         updateGui(roundInfo, true);
     }
 
     public void updateGui(InfoMessage roundInfo, boolean wait) {
-        mapPanel.updateState(state, roundInfo);
+        if(displayGui) {
+            mapPanel.updateState(state, roundInfo);
 
-        if(wait) {
-            waitForSpace();
+            if(wait) {
+                waitForSpace();
+            }
         }
     }
 
