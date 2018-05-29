@@ -28,11 +28,6 @@ public class TradeResources extends Move {
 
     @Override
     public String toString() {
-        return "TradeResources{" +
-                "tradeIn=" + tradeIn +
-                ", tradeOut=" + tradeOut +
-                ", ratio=" + ratio +
-                ", playerIndex=" + playerIndex +
-                '}';
+        return String.format("[%d] Traded [%d] x [%s] for 1 x [%s]", playerIndex, ratio, tradeIn.name(), tradeOut.name());
     }
 }

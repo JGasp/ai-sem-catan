@@ -1,6 +1,7 @@
 package si.fri.ai.catan.gui;
 
 import si.fri.ai.catan.State;
+import si.fri.ai.catan.dto.InfoMessage;
 import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Road;
@@ -10,6 +11,7 @@ import si.fri.ai.catan.map.parts.positon.Vector;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +19,7 @@ import java.awt.*;
 
 public class MapPanel extends JPanel {
 
-    private static final Color[] playerColors = { Color.RED, Color.BLUE, Color.ORANGE, Color.WHITE };
+    private static final Color[] playerColors = { Color.MAGENTA, Color.WHITE, Color.RED, Color.BLUE };
 
     private static final int Y_OFFSET = 500;
     private static final int X_OFFSET = 900;
@@ -30,14 +32,14 @@ public class MapPanel extends JPanel {
     private Map map;
     private State state;
 
-    private int maxInfoSize = 10;
-    private List<String> roundInfo ;
+    private int maxInfoSize = 30;
+    private List<InfoMessage> roundInfo;
 
 
     public MapPanel(Map map) {
         this.map = map;
 
-        roundInfo = new ArrayList<>();
+        roundInfo = Collections.synchronizedList(new ArrayList<InfoMessage>());
 
         frame = new JFrame();
         frame.setPreferredSize(new Dimension(1920, 1080));
@@ -46,14 +48,14 @@ public class MapPanel extends JPanel {
         frame.setVisible(true);
     }
 
-    private void addInfo(String info) {
+    private void addInfo(InfoMessage info) {
         if(roundInfo.size() > maxInfoSize) {
             roundInfo.remove(0);
         }
         roundInfo.add(info);
     }
 
-    public void updateState(State state, String roundInfo) {
+    public void updateState(State state, InfoMessage roundInfo) {
         this.state = state;
 
         if(roundInfo != null) addInfo(roundInfo);
@@ -351,14 +353,21 @@ public class MapPanel extends JPanel {
     }
 
     private void paintInfo(Graphics g) {
+        g.setColor(Color.BLACK);
 
-        int x = X_OFFSET * 2 - 250;
+        int x = X_OFFSET * 2 - 400;
         int y = 100;
 
-        for(String str : roundInfo) {
+        for(InfoMessage info : roundInfo) {
             y += 15;
 
-            char[] textIndex = str.toCharArray();
+            if(info.getPlayerIndex() == -1) {
+                g.setColor(Color.BLACK);
+            } else {
+                g.setColor(playerColors[info.getPlayerIndex()]);
+            }
+
+            char[] textIndex = info.getMessage().toCharArray();
             g.drawChars(textIndex, 0, textIndex.length, x, y);
         }
 

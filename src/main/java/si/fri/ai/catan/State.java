@@ -146,6 +146,8 @@ public class State {
         int resourceIndex = type.getIndex() * DICE_VALUES;
 
         gameState[index + resourceIndex + diceIndex(dice)] = amount;
+
+        calculateResourceAvgIncome(playerIndex, type);
     }
 
     public void addResourceIncome(int playerIndex, ResourceType type, int dice, byte amount) {
@@ -153,6 +155,8 @@ public class State {
         int resourceIndex = type.getIndex() * DICE_VALUES;
 
         gameState[index + resourceIndex + diceIndex(dice)] += amount;
+
+        calculateResourceAvgIncome(playerIndex, type);
     }
 
     public void subResourceIncome(int playerIndex, ResourceType type, int dice, byte amount) {
@@ -160,6 +164,8 @@ public class State {
         int resourceIndex = type.getIndex() * DICE_VALUES;
 
         gameState[index + resourceIndex + diceIndex(dice)] -= amount;
+
+        calculateResourceAvgIncome(playerIndex, type);
 
         if(gameState[index + resourceIndex + diceIndex(dice)] < 0) {
             System.out.println("Break");
@@ -326,7 +332,7 @@ public class State {
 
 
     public int getScore(int playerIndex) {
-        return getNumberOfVillages(playerIndex) + getNumberOfVillages(playerIndex) * 2;
+        return getNumberOfVillages(playerIndex) + getNumberOfCities(playerIndex) * 2;
     }
 
     /**
@@ -366,17 +372,12 @@ public class State {
         int index = playerIndex * DIFFERENT_RESOURCES;
 
         float avgIncome = 0;
-        for(int i=0; i<5; i++) {
-            avgIncome += getDiceRatio(i + 2) * gameState[index + type.getIndex() + i];
+        for(int i=2; i<DICE_VALUES + 2; i++) {
+            if(i != 7) {
+                avgIncome += getDiceRatio(i) * getResourceIncome(playerIndex, type, i);
+            }
         }
         avgIncomePerRound[index + type.getIndex()] = avgIncome;
-    }
-
-    public void updateResourceAmount(int dice, int playerIndex) {
-        for(ResourceType rt: ResourceType.values()) {
-            addResource(playerIndex, rt, getResourceIncome(playerIndex, rt, dice));
-            calculateResourceAvgIncome(playerIndex, rt);
-        }
     }
 
     public byte getThiefTerrain() {

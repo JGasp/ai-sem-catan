@@ -20,6 +20,7 @@ public class PlayerResAvgInc {
         resource = Arrays.copyOf(playerResAvgInc.resource, playerResAvgInc.resource.length);
     }
 
+
     public PlayerResAvgInc copy() {
         return new PlayerResAvgInc(this);
     }
@@ -30,4 +31,37 @@ public class PlayerResAvgInc {
         }
     }
 
+
+    public float get(ResourceType rt) {
+        return resource[rt.getIndex()];
+    }
+
+    public void set(ResourceType rt, float amount) {
+        resource[rt.getIndex()] = amount;
+    }
+
+
+    public float getAverageValue() {
+        float avg = 0;
+
+        for(int i=0; i<resource.length; i++) {
+            avg += resource[i];
+        }
+
+        avg /= resource.length;
+
+        return avg;
+    }
+
+    public float getDerivation(float avg) {
+        float derivation = 0;
+
+        for(int i=0; i<resource.length; i++) {
+            derivation += Math.abs(resource[i] - avg);
+        }
+
+        derivation /= resource.length;
+
+        return derivation;
+    }
 }

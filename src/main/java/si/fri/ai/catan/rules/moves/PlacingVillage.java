@@ -41,10 +41,7 @@ public class PlacingVillage extends Move {
 
     @Override
     public String toString() {
-        return "PlacingVillage{" +
-                "landIndex=" + landIndex +
-                ", roadIndex=" + roadIndex +
-                ", playerIndex=" + playerIndex +
-                '}';
+        return String.format("[%d] Placed village on [%d] and road on [%d]", playerIndex, landIndex, roadIndex);
     }
+
 }

@@ -21,31 +21,50 @@ public class HumanPlayer extends Player {
         super(game, playerIndex);
     }
 
-    private float getResourceIncomeScore(PlayerResAvgInc playerResAvgInc) {
+    private float getResourceIncomeScore(PlayerResAvgInc prai) {
 
+        float average = prai.getAverageValue();
+        float derivation = prai.getDerivation(average);
 
-        return 0;
+        float score = average - derivation;
+
+        float wood = prai.get(ResourceType.WOOD);
+        score += Math.min(wood, 0.01f);
+
+        float clay = prai.get(ResourceType.CLAY);
+        score += Math.min(clay, 0.01f);
+
+        if(
+                prai.get(ResourceType.CLAY) > 0 &&
+                prai.get(ResourceType.WOOD) > 0 &&
+                prai.get(ResourceType.WHEAT) > 0 &&
+                prai.get(ResourceType.SHEEP) > 0
+        ) {
+            score += 0.5f;
+        }
+
+        return score;
     }
 
     private Land getBestLand(Collection<Land> lands, State state, PlayerResAvgInc playerResAvgInc) {
 
-        float bestScore = 0;
+        float bestScore = -Float.MAX_VALUE;
         Land bestLand = null;
 
         for(Land l : lands) {
+
+            PlayerResAvgInc tempResourceIncome = playerResAvgInc.copy();
+
             if(state.getLand(l.getIndex()) == 0) {
-
-                PlayerResAvgInc tempResourceIncome = playerResAvgInc.copy();
-
                 for(Terrain t : l.getTerrains()) {
                     tempResourceIncome.addAvgIncome(t.getType(), State.getDiceRatio(t.getDice()));
                 }
+            }
 
-                float score = getResourceIncomeScore(tempResourceIncome);
-                if(score > bestScore) {
-                    bestScore = score;
-                    bestLand = l;
-                }
+            float score = getResourceIncomeScore(tempResourceIncome);
+            if(score > bestScore) {
+                bestScore = score;
+                bestLand = l;
             }
         }
 
@@ -86,10 +105,10 @@ public class HumanPlayer extends Player {
         buildVillage(tempState, moves, buildVillageLocations);
 
         if(buildVillageLocations.isEmpty()) {
-            buildRoad(state, moves);
+            buildRoad(tempState, moves);
         }
 
-        tradeRedundant(state, moves);
+        tradeRedundant(tempState, moves);
 
         return moves;
     }
@@ -102,9 +121,8 @@ public class HumanPlayer extends Player {
         List<ResourceAmount> resourceAmounts = new ArrayList<>();
         for(ResourceType rt : ResourceType.values()) {
             int amount = state.getResource(getPlayerIndex(), rt);
-            totalAmount += amount;
-
             if(amount > 0) {
+                totalAmount += amount;
                 resourceAmounts.add(new ResourceAmount(
                         rt,
                         amount,
@@ -115,15 +133,17 @@ public class HumanPlayer extends Player {
 
         List<DropResources> drops = new ArrayList<>();
 
-        int drop = totalAmount / 2;
-        for(int d=0; d<drop; d++) {
-            resourceAmounts.sort(ResourceAmount.compScore());
+        if(totalAmount > 7) {
+            int drop = totalAmount / 2;
+            for(int d=0; d<drop; d++) {
+                resourceAmounts.sort(ResourceAmount.compScore());
 
-            ResourceAmount ra = resourceAmounts.get(0);
-            ra.decAmount(1);
-            if(ra.getAmount() == 0) resourceAmounts.remove(ra);
+                ResourceAmount ra = resourceAmounts.get(0);
+                ra.decAmount(1);
+                if(ra.getAmount() == 0) resourceAmounts.remove(ra);
 
-            drops.add(new DropResources(getPlayerIndex(), ra.getType(), 1));
+                drops.add(new DropResources(getPlayerIndex(), ra.getType(), 1));
+            }
         }
 
         return drops;
@@ -133,60 +153,60 @@ public class HumanPlayer extends Player {
     public MoveRobber moveRobber(State state) {
 
         Terrain bestTerrain = getMap().gt(8);
-        float bestDenialScore = 0;
+        float bestDenialScore = -Float.MAX_VALUE;
 
         terrainLoop:
         for(Terrain t : getMap().getTerrains()) {
-            if(t.getIndex() != state.getThiefTerrain()) {
-
+            if(t.getType() != null && t.getIndex() != state.getThiefTerrain()) {
                 float denialScore = 0;
 
                 for(Land l : t.getLands()) {
                     byte occupation = state.getLand(l.getIndex());
 
-                    int robingPlayerIndex = occupation / 10;
-                    if(robingPlayerIndex == getPlayerIndex()) {
-                        continue terrainLoop;
-                    }
+                    if(occupation != 0) {
+                        int robingPlayerIndex = occupation / 10;
+                        if(robingPlayerIndex == getPlayerIndex()) {
+                            continue terrainLoop;
+                        }
 
-                    int figure = occupation % 10;
-                    denialScore += figure * State.getDiceRatio(t.getDice());
+                        int figure = occupation % 10;
+                        denialScore += figure * State.getDiceRatio(t.getDice());
+                    }
                 }
 
                 if(denialScore > bestDenialScore) {
                     bestDenialScore = denialScore;
                     bestTerrain = t;
                 }
-
             }
         }
 
-        HashSet<Integer> potentialRobberies = new HashSet<>();
+        HashSet<Integer> playersToSteal = new HashSet<>();
         for(Land l : bestTerrain.getLands()) {
             byte occupied = state.getLand(l.getIndex());
             if(occupied != 0) {
-                int robbingPlayerIndex = occupied % 10;
-                potentialRobberies.add(robbingPlayerIndex);
+                int robbingPlayerIndex = occupied / 10;
+                if(robbingPlayerIndex != getPlayerIndex()) {
+                    playersToSteal.add(robbingPlayerIndex);
+                }
             }
         }
 
-        List<RobbingPotential> robbingPotentials = new ArrayList<>();
-        for(Integer pi : potentialRobberies) {
-            int amount = 0;
-            for(ResourceType rt : ResourceType.values()) {
-                amount += state.getResource(pi, rt);
-            }
-
-            if(amount > 0) {
-                robbingPotentials.add(new RobbingPotential(pi, state.getScore(pi)));
+        List<RobbingPotential> stealPotential = new ArrayList<>();
+        for(Integer pi : playersToSteal) {
+            PlayerResAmount pra = new PlayerResAmount(state, pi);
+            if(pra.getTotalAmount() > 0) {
+                stealPotential.add(new RobbingPotential(pi, state.getScore(pi)));
             }
         }
 
-        robbingPotentials.sort((o1, o2) -> o2.getPlayerIndex() - o1.getPlayerIndex());
+        stealPotential.sort((o1, o2) -> o2.getScore() - o1.getScore());
 
         int robbingPlayerIndex = -1;
-        if(!robbingPotentials.isEmpty()) {
-            robbingPlayerIndex = robbingPotentials.get(0).getPlayerIndex();
+        if(!stealPotential.isEmpty()) {
+            robbingPlayerIndex = stealPotential.get(0).getPlayerIndex();
+        } else {
+            System.out.println("Break");
         }
 
         return new MoveRobber(getPlayerIndex(), bestTerrain.getIndex(), robbingPlayerIndex);
@@ -199,7 +219,10 @@ public class HumanPlayer extends Player {
         boolean anyTrading = state.isAnyResourceTrading(getPlayerIndex());
 
         for(ResourceType rt : ResourceType.values()) {
-            resources.add(new ResourceAmount(rt, temp.get(rt), state, getPlayerIndex()));
+            int amount = temp.get(rt);
+            if(amount > 0) {
+                resources.add(new ResourceAmount(rt, amount, state, getPlayerIndex()));
+            }
         }
 
         int missingAmount = missing.getTotalAmount();
@@ -217,10 +240,12 @@ public class HumanPlayer extends Player {
 
                 if(ra.getAmount() >= ratio) {
                     missingAmount--;
+                    temp.sub(ra.getType(), ratio);
                     ra.decAmount(ratio);
 
                     ResourceType tradeFor = missing.getNonZero();
                     missing.sub(tradeFor, 1);
+                    temp.add(tradeFor, 1);
 
                     tradeMoves.add(new TradeResources(getPlayerIndex(), ra.getType(), tradeFor, ratio));
                     continue dropLoop;
@@ -300,7 +325,7 @@ public class HumanPlayer extends Player {
                     if(pra.get(rt) >= 1) {
                         pra.sub(rt, 1);
                     } else {
-                        missing.sub(rt, 1);
+                        missing.add(rt, 1);
                         pra.set(rt, 0);
                     }
                 }
@@ -345,8 +370,7 @@ public class HumanPlayer extends Player {
                 if(pra.get(rt) >= 1) {
                     pra.sub(rt, 1);
                 } else {
-                    missing.sub(rt, 1);
-                    pra.set(rt, 0);
+                    missing.add(rt, 1);
                 }
             }
 
@@ -434,7 +458,7 @@ public class HumanPlayer extends Player {
 
             boolean anyTrading = state.isAnyResourceTrading(getPlayerIndex());
 
-            while(pra.getTotalAmount() > 7) {
+            if(pra.getTotalAmount() > 7) {
                 amounts.sort(ResourceAmount.compScore());
 
                 for(ResourceAmount ra : amounts) {
@@ -456,7 +480,6 @@ public class HumanPlayer extends Player {
                         tradingMoves.add(new TradeResources(getPlayerIndex(), ra.getType(), tradeFor.getType(), ratio));
                     }
                 }
-
             }
 
         }

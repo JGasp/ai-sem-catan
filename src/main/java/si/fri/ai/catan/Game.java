@@ -1,5 +1,6 @@
 package si.fri.ai.catan;
 
+import si.fri.ai.catan.dto.InfoMessage;
 import si.fri.ai.catan.gui.MapPanel;
 import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.players.HumanPlayer;
@@ -10,6 +11,7 @@ import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
 import si.fri.ai.catan.rules.moves.PlacingVillage;
 import si.fri.ai.catan.rules.moves.base.Move;
+import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -54,7 +56,7 @@ public class Game {
                  PlacingVillage m = p.playPlacingTurn(state);
                  m.make(this, state);
 
-                 updateGui(m.toString());
+                 updateGui(new InfoMessage(m.toString(), p.getPlayerIndex()));
             }
         }
     }
@@ -68,25 +70,36 @@ public class Game {
             int dice = rule.throwDice();
 
             String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d \n", round, dice, playerIndex);
-            updateGui(roundInfo);
+            updateGui(new InfoMessage(roundInfo), false);
 
             Player p = playerList[playerIndex];
 
             if(dice == 7) {
-                for(int i=0; i<playerList.length; i++) {
+                for(int pi=0; pi<playerList.length; pi++) {
                     List<DropResources> drop = p.dropResources(state);
                     for(DropResources m : drop) {
                         m.make(this, state);
 
-                        updateGui(m.toString());
+                        updateGui(new InfoMessage(m.toString(), pi));
                     }
                 }
 
                 MoveRobber m = p.moveRobber(state);
                 m.make(this, state);
+
+                updateGui(new InfoMessage(m.toString(), playerIndex) );
             } else {
-                for(int i=0; i<playerList.length; i++) {
-                    state.updateResourceAmount(dice, i);
+                for(int pi=0; pi<playerList.length; pi++) {
+                    for(ResourceType rt: ResourceType.values()) {
+                        byte amount = state.getResourceIncome(pi, rt, dice);
+                        if(amount > 0) {
+                            state.addResource(pi, rt, amount);
+
+                            String info = String.format("[%d] got [%d] x [%s]", pi, amount, rt.name());
+                            updateGui(new InfoMessage(info, pi), false);
+                        }
+                    }
+
                 }
             }
 
@@ -94,18 +107,22 @@ public class Game {
             for(Move m : playerTurn) {
                 m.make(this, state);
 
-                updateGui(m.toString());
+                updateGui(new InfoMessage(m.toString(), playerIndex));
             }
 
-
-            if(!rule.isWinner(state, playerIndex)) {
+            if(rule.isWinner(state, playerIndex)) {
+                String info = "Winner was player: " + playerIndex;
+                updateGui(new InfoMessage(info, playerIndex));
                 break;
             }
 
             if(round > 10000) {
-                System.out.println("Game took to long");
+                String info = "Game took to long";
+                updateGui(new InfoMessage(info));
                 return;
             }
+
+            updateGui(null);
 
             playerIndex++;
             if(playerIndex >= playerList.length) {
@@ -113,10 +130,7 @@ public class Game {
             }
         }
 
-        System.out.println("Winner was player: " + playerIndex);
-        updateGui(null);
     }
-
 
     public Map getMap() {
         return map;
@@ -130,11 +144,21 @@ public class Game {
         return playerList.length;
     }
 
-    private void updateGui(String roundInfo){
-        mapPanel.updateState(state, roundInfo);
-        waitForSpace();
+    public void updateGui(InfoMessage roundInfo) {
+        updateGui(roundInfo, true);
     }
 
+    public void updateGui(InfoMessage roundInfo, boolean wait) {
+        mapPanel.updateState(state, roundInfo);
+
+        if(wait) {
+            waitForSpace();
+        }
+    }
+
+    public MapPanel getMapPanel() {
+        return mapPanel;
+    }
 
     private static boolean pressed = false;
     public static void waitForSpace() {

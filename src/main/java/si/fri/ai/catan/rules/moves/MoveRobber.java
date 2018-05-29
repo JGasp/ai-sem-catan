@@ -13,6 +13,7 @@ public class MoveRobber extends Move {
 
     private byte terrainIndex;
     private int robbingPlayerIndex;
+    private ResourceType took;
 
     public MoveRobber(int playerIndex, byte terrainIndex, int robbingPlayerIndex) {
         super(playerIndex);
@@ -73,9 +74,11 @@ public class MoveRobber extends Move {
                     if(ra.getAmount() > 0) {
                         checked += ra.getAmount();
 
-                        if(checked <= randomResource) {
+                        if(checked >= randomResource) {
                             state.addResource(playerIndex, ra.getType(), (byte) 1);
                             state.subResource(robbingPlayerIndex, ra.getType(), (byte) 1);
+
+                            took = ra.getType();
                             break;
                         }
                     }
@@ -87,10 +90,7 @@ public class MoveRobber extends Move {
 
     @Override
     public String toString() {
-        return "MoveRobber{" +
-                "terrainIndex=" + terrainIndex +
-                ", robbingPlayerIndex=" + robbingPlayerIndex +
-                ", playerIndex=" + playerIndex +
-                '}';
+        return String.format("[%d] Moved robber to [%d] and took [%s] from player [%d]",
+                playerIndex, terrainIndex, took.name(), robbingPlayerIndex);
     }
 }

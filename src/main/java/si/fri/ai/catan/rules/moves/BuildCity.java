@@ -35,9 +35,6 @@ public class BuildCity extends Move {
 
     @Override
     public String toString() {
-        return "BuildCity{" +
-                "villageIndex=" + villageIndex +
-                ", playerIndex=" + playerIndex +
-                '}';
+        return String.format("[%d] Build city on [%d]", playerIndex, villageIndex);
     }
 }

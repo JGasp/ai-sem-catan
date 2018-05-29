@@ -7,10 +7,9 @@ import java.util.Arrays;
 
 public class PlayerResAmount {
 
-    private int resource[];
+    private int resource[] = new int[State.DIFFERENT_RESOURCES];
 
     public PlayerResAmount() {
-        resource = new int[State.DIFFERENT_RESOURCES];
     }
 
     public PlayerResAmount(State state, int playerIndex) {

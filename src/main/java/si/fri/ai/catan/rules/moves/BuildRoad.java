@@ -29,9 +29,6 @@ public class BuildRoad extends Move {
 
     @Override
     public String toString() {
-        return "BuildRoad{" +
-                "roadIndex=" + roadIndex +
-                ", playerIndex=" + playerIndex +
-                '}';
+        return String.format("[%d] Build road on [%d]", playerIndex, roadIndex);
     }
 }

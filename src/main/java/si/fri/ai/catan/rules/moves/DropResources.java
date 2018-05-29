@@ -24,9 +24,6 @@ public class DropResources extends Move {
 
     @Override
     public String toString() {
-        return "DropResources{" +
-                "amount=" + amount +
-                ", playerIndex=" + playerIndex +
-                '}';
+        return String.format("[%d] Dropped [%d] of [%s]", playerIndex, amount, type.name());
     }
 }
