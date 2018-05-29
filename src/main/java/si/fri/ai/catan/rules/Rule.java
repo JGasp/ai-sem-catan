@@ -26,16 +26,11 @@ public class Rule {
         this.game = game;
     }
 
-    public int getWinner(State state) {
-
-        for(int i=0; i<game.numberOfPLayers(); i++) {
-            int points = state.getNumberOfCities(i) * 2 + state.getNumberOfVillages(i);
-            if(points >= WINNING_POINTS) {
-                return i;
-            }
+    public boolean isWinner(State state, int playerIndex) {
+        if(state.getScore(playerIndex) >= WINNING_POINTS) {
+            return true;
         }
-
-        return -1;
+        return false;
     }
 
     public int throwDice() {
@@ -55,15 +50,28 @@ public class Rule {
         return false;
     }
 
-    private void canBuildRoadOnPosition(State state, int playerIndex, byte fromRoadIndex, byte landIndex, List<Move> moves) {
-        Land land = game.getMap().gl(landIndex);
+    private void getLocationsToBuildRoad(State state, int playerIndex, List<BuildRoad> moves) {
 
-        for(Road r : land.getRoads()) {
-            if(r.getIndex() != fromRoadIndex) {
-                byte roadOccupation = state.getRoad(r.getIndex());
-                if(roadOccupation == 0) {
-                    moves.add(new BuildRoad(game, playerIndex, r.getIndex()));
+        byte roads = state.getNumberOfRoads(playerIndex);
+        for(int i=0; i<roads; i++) {
+
+            byte roadIndex = state.getRoadLocation(playerIndex, i);
+            Road startRoad = game.getMap().gr(roadIndex);
+
+
+
+            for(Byte landIndex : lands) {
+                Land land = game.getMap().gl(landIndex);
+
+                for(Road r : land.getRoads()) {
+                    if(r.getIndex() != startRoad.getIndex()) {
+                        byte roadOccupation = state.getRoad(r.getIndex());
+                        if(roadOccupation == 0) {
+                            moves.add(new BuildRoad(playerIndex, r.getIndex()));
+                        }
+                    }
                 }
+
             }
         }
 
@@ -71,16 +79,7 @@ public class Rule {
 
     private void canBuildRoad(State state, int playerIndex, List<Move> moves) {
         if(hasResourceToBuildRoad(state, playerIndex) && state.isAnyRoadAvailable(playerIndex)) {
-            byte roads = state.getNumberOfRoads(playerIndex);
-            for(int i=0; i<roads; i++) {
 
-                byte roadIndex = state.getRoadLocation(playerIndex, i);
-                Road r = game.getMap().gr(roadIndex);
-
-
-                canBuildRoadOnPosition(state, playerIndex, roadIndex, r.getTo().getIndex(), moves);
-                canBuildRoadOnPosition(state, playerIndex, roadIndex, r.getFrom().getIndex(), moves);
-            }
         }
     }
 
@@ -134,11 +133,11 @@ public class Rule {
                 Road r = game.getMap().gr(roadIndex);
 
                 if(canBuildVillageOnLand(state, r.getTo().getIndex())) {
-                    moves.add(new BuildVillage(game, playerIndex, r.getTo().getIndex()));
+                    moves.add(new BuildVillage(playerIndex, r.getTo().getIndex()));
                 }
 
                 if(canBuildVillageOnLand(state, r.getFrom().getIndex())) {
-                    moves.add(new BuildVillage(game, playerIndex, r.getFrom().getIndex()));
+                    moves.add(new BuildVillage(playerIndex, r.getFrom().getIndex()));
                 }
 
             }
@@ -161,7 +160,7 @@ public class Rule {
 
             int villages = state.getNumberOfVillages(playerIndex);
             for(byte i=0; i<villages; i++) {
-                moves.add(new BuildCity(game, playerIndex, i));
+                moves.add(new BuildCity(playerIndex, i));
             }
         }
     }
@@ -169,7 +168,7 @@ public class Rule {
     private void canTradeResource(ResourceType in, int playerIndex, int ratio, List<Move> moves) {
         for(ResourceType rt : ResourceType.values()) {
             if(rt != in) {
-                moves.add(new TradeResources(game, playerIndex, in, rt, ratio));
+                moves.add(new TradeResources(playerIndex, in, rt, ratio));
             }
         }
     }

@@ -11,13 +11,13 @@ public class BuildVillage extends Move {
 
     private byte landIndex;
 
-    public BuildVillage(Game game, int playerIndex, byte landIndex) {
-        super(game, playerIndex);
+    public BuildVillage(int playerIndex, byte landIndex) {
+        super(playerIndex);
         this.landIndex = landIndex;
     }
 
     @Override
-    public void make(State state) {
+    public void make(Game game, State state) {
 
         state.subResource(playerIndex, ResourceType.WOOD, (byte) 1);
         state.subResource(playerIndex, ResourceType.CLAY, (byte) 1);

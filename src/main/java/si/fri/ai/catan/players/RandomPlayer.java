@@ -34,7 +34,7 @@ public class RandomPlayer extends Player {
                 Road r = l.getRoads()[randomLandRoad];
 
                 if(state.getRoad(r.getIndex()) == 0) {
-                    return new PlacingVillage(getGame(), getPlayerIndex(), randomLand, r.getIndex());
+                    return new PlacingVillage(getPlayerIndex(), randomLand, r.getIndex());
                 }
             }
         }
@@ -84,7 +84,7 @@ public class RandomPlayer extends Player {
                         checked += ra.getAmount();
 
                         if(checked >= randResource) {
-                            moveList.add(new DropResources(getGame(), getPlayerIndex(), ra.getType(), 1));
+                            moveList.add(new DropResources(getPlayerIndex(), ra.getType(), 1));
                             ra.decAmount();
                             totalAmount--;
                             break;
@@ -130,7 +130,7 @@ public class RandomPlayer extends Player {
                     }
                 }
 
-                return new MoveRobber(getGame(), getPlayerIndex(), terrainIndex, rpi);
+                return new MoveRobber(getPlayerIndex(), terrainIndex, rpi);
             }
         }
     }

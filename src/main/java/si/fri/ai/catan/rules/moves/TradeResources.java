@@ -12,8 +12,8 @@ public class TradeResources extends Move {
 
     private int ratio;
 
-    public TradeResources(Game game, int playerIndex, ResourceType tradeIn, ResourceType tradeOut, int ratio) {
-        super(game, playerIndex);
+    public TradeResources(int playerIndex, ResourceType tradeIn, ResourceType tradeOut, int ratio) {
+        super(playerIndex);
 
         this.tradeIn = tradeIn;
         this.tradeOut = tradeOut;
@@ -21,7 +21,7 @@ public class TradeResources extends Move {
     }
 
     @Override
-    public void make(State state) {
+    public void make(Game game, State state) {
         state.subResource(playerIndex, tradeIn, (byte) ratio);
         state.addResource(playerIndex, tradeOut, (byte) 1);
     }

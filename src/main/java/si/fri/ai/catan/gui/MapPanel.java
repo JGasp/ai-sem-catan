@@ -116,10 +116,10 @@ public class MapPanel extends JPanel {
         int roads = state.getNumberOfRoads(playerIndex);
         int villages = state.getNumberOfVillages(playerIndex);
         int cities = state.getNumberOfCities(playerIndex);
-        int points = villages + cities * 2;
+        int score = state.getScore(playerIndex);
 
         int yOffsetBottom = Y_OFFSET * 2 - (State.NUMBER_OF_PLAYERS - playerIndex) * 30;
-        char[] textIndex = String.format("%5d \t %5d \t %7d \t %4d", points, roads, villages, cities).toCharArray();
+        char[] textIndex = String.format("%5d \t %5d \t %7d \t %4d", score, roads, villages, cities).toCharArray();
         g.drawChars(textIndex, 0, textIndex.length, 50, yOffsetBottom);
 
 

@@ -6,15 +6,13 @@ import si.fri.ai.catan.map.parts.Terrain;
 
 public abstract class Move {
 
-    protected Game game;
     protected int playerIndex;
 
-    public Move(Game game, int playerIndex) {
-        this.game = game;
+    public Move(int playerIndex) {
         this.playerIndex = playerIndex;
     }
 
-    public abstract void make(State state);
+    public abstract void make(Game game, State state);
 
     protected void addTerrain(Terrain t, State state, int playerIndex) {
         if(t.getType() != null && t.getIndex() != state.getThiefTerrain()) {

@@ -33,6 +33,14 @@ public class Road {
         return point;
     }
 
+    public Land getOther(Land land) {
+        if(from == land) {
+            return to;
+        } else {
+            return from;
+        }
+    }
+
     public void calculatePoint() {
         point = new Point(
                 (from.getPoint().getX() + to.getPoint().getX()) / 2,

@@ -27,6 +27,16 @@ public class Land {
         }
     }
 
+    public Road getConnectingRoad(Land land) {
+        for(Road r : roads) {
+            if(r.getOther(this) == land) {
+                return r;
+            }
+        }
+
+        return null;
+    }
+
     public byte getIndex() {
         return index;
     }

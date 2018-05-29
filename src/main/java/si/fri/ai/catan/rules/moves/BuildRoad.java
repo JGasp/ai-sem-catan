@@ -9,13 +9,13 @@ public class BuildRoad extends Move {
 
     private byte roadIndex;
 
-    public BuildRoad(Game game, int playerIndex, byte roadIndex) {
-        super(game, playerIndex);
+    public BuildRoad(int playerIndex, byte roadIndex) {
+        super(playerIndex);
         this.roadIndex = roadIndex;
     }
 
     @Override
-    public void make(State state) {
+    public void make(Game game, State state) {
 
         state.subResource(playerIndex, ResourceType.CLAY, (byte) 1);
         state.subResource(playerIndex, ResourceType.WOOD, (byte) 1);

@@ -5,7 +5,7 @@ import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 public class Terrain {
 
-    private int index;
+    private byte index;
     private int dice;
 
     private ResourceType type;
@@ -16,7 +16,7 @@ public class Terrain {
     private Point point;
 
     public Terrain(int index, int dice, ResourceType type) {
-        this.index = index;
+        this.index = (byte) index;
         this.dice = dice;
         this.type = type;
         this.lands = new Land[6];
@@ -39,7 +39,7 @@ public class Terrain {
         this.point = point;
     }
 
-    public int getIndex() {
+    public byte getIndex() {
         return index;
     }
 

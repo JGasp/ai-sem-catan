@@ -51,7 +51,7 @@ public class Game {
         for(int t=0; t<2; t++) {
             for(Player p : playerList) {
                  PlacingVillage m = p.playPlacingTurn(state);
-                 m.make(state);
+                 m.make(this, state);
 
                  //updateGui();
             }
@@ -60,11 +60,9 @@ public class Game {
 
     private void mainGameLoop() {
         int round = 0;
-
         int playerIndex = 0;
-        int winnerIndex = rule.getWinner(state);
 
-        while(winnerIndex == -1) {
+        while(true) {
             round++;
             int dice = rule.throwDice();
 
@@ -76,12 +74,12 @@ public class Game {
                 for(int i=0; i<playerList.length; i++) {
                     List<DropResources> drop = p.dropResources(state);
                     for(DropResources m : drop) {
-                        m.make(state);
+                        m.make(this, state);
                     }
                 }
 
                 MoveRobber m = p.moveRobber(state);
-                m.make(state);
+                m.make(this, state);
             } else {
                 for(int i=0; i<playerList.length; i++) {
                     state.updateResourceAmount(dice, i);
@@ -90,26 +88,29 @@ public class Game {
 
             List<Move> playerTurn = p.playTurn(state);
             for(Move m : playerTurn) {
-                m.make(state);
+                m.make(this, state);
             }
 
-            playerIndex++;
-            if(playerIndex >= playerList.length) {
-                playerIndex = 0;
+
+            if(!rule.isWinner(state, playerIndex)) {
+                break;
             }
-
-            //updateGui();
-
-            winnerIndex = rule.getWinner(state);
 
             if(round > 10000) {
                 System.out.println("Game took to long");
                 return;
             }
+
+            //updateGui();
+
+            playerIndex++;
+            if(playerIndex >= playerList.length) {
+                playerIndex = 0;
+            }
         }
 
         //updateGui();
-        System.out.println("Winner was player: " + winnerIndex);
+        System.out.println("Winner was player: " + playerIndex);
     }
 
 

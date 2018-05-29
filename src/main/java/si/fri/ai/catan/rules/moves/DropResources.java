@@ -10,14 +10,14 @@ public class DropResources extends Move {
     private ResourceType type;
     private int amount;
 
-    public DropResources(Game game, int playerIndex, ResourceType type, int amount) {
-        super(game, playerIndex);
+    public DropResources(int playerIndex, ResourceType type, int amount) {
+        super(playerIndex);
         this.type = type;
         this.amount = amount;
     }
 
     @Override
-    public void make(State state) {
+    public void make(Game game, State state) {
         state.subResource(playerIndex, type, (byte) amount);
     }
 

@@ -14,14 +14,14 @@ public class MoveRobber extends Move {
     private byte terrainIndex;
     private int robbingPlayerIndex;
 
-    public MoveRobber(Game game, int playerIndex, byte terrainIndex, int robbingPlayerIndex) {
-        super(game, playerIndex);
+    public MoveRobber(int playerIndex, byte terrainIndex, int robbingPlayerIndex) {
+        super(playerIndex);
         this.terrainIndex = terrainIndex;
         this.robbingPlayerIndex = robbingPlayerIndex;
     }
 
     @Override
-    public void make(State state) {
+    public void make(Game game, State state) {
 
         Terrain from = game.getMap().gt(state.getThiefTerrain());
         if(from.getType() != null) {

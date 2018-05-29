@@ -325,11 +325,15 @@ public class State {
     }
 
 
+    public int getScore(int playerIndex) {
+        return getNumberOfVillages(playerIndex) + getNumberOfVillages(playerIndex) * 2;
+    }
+
     /**
      * Average resource gain each turn, based on fair dice
      */
 
-    private float getDiceRatio(int diceSum) {
+    public static float getDiceRatio(int diceSum) {
         switch (diceSum) {
             case 2:
             case 12:

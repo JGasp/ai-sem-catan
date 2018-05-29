@@ -11,14 +11,14 @@ public class PlacingVillage extends Move {
     private byte landIndex;
     private byte roadIndex;
 
-    public PlacingVillage(Game game, int playerIndex, byte landIndex, byte roadIndex) {
-        super(game, playerIndex);
+    public PlacingVillage(int playerIndex, byte landIndex, byte roadIndex) {
+        super(playerIndex);
         this.landIndex = landIndex;
         this.roadIndex = roadIndex;
     }
 
     @Override
-    public void make(State state) {
+    public void make(Game game, State state) {
 
         state.buildVillages(playerIndex, landIndex);
 
