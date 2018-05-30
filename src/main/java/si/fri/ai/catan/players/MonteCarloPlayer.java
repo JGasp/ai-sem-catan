@@ -12,8 +12,6 @@ import java.util.List;
 
 public class MonteCarloPlayer extends Player {
 
-
-
     public MonteCarloPlayer(Game game, int playerIndex) {
         super(game, playerIndex);
     }

@@ -29,7 +29,7 @@ public class Game {
     private Player[] playerList;
     private State state;
 
-    private Integer winnerIndex = null;
+    private Byte winnerIndex = null;
 
     public Game() {
         this(true);
@@ -62,6 +62,7 @@ public class Game {
         mainGameLoop();
     }
 
+
     private void placementGameLoop() {
 
         for(int t=0; t<2; t++) {
@@ -75,14 +76,13 @@ public class Game {
     }
 
     private void mainGameLoop() {
-        int round = 0;
-        int playerIndex = 0;
 
         while(true) {
-            round++;
-            int dice = Rule.throwDice();
 
-            String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d \n", round, dice, playerIndex);
+            int dice = Rule.throwDice();
+            byte playerIndex = state.getCurrentPlayerIndex();
+
+            String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d \n", state.getRound(), dice, playerIndex);
             updateGui(new InfoMessage(roundInfo), false);
 
             Player p = playerList[playerIndex];
@@ -130,7 +130,7 @@ public class Game {
                 break;
             }
 
-            if(round > 10000) {
+            if(state.getRound() > 10000) {
                 String info = "Game took to long";
                 updateGui(new InfoMessage(info));
                 return;
@@ -138,13 +138,13 @@ public class Game {
 
             updateGui(null);
 
-            playerIndex++;
-            if(playerIndex >= playerList.length) {
-                playerIndex = 0;
-            }
+            state.nextPlayerIndex();
         }
 
     }
+
+
+
 
     public Map getMap() {
         return map;
@@ -154,11 +154,7 @@ public class Game {
         return rule;
     }
 
-    public int numberOfPLayers() {
-        return playerList.length;
-    }
-
-    public Integer getWinnerIndex() {
+    public Byte getWinnerIndex() {
         return winnerIndex;
     }
 
@@ -179,6 +175,9 @@ public class Game {
     public MapPanel getMapPanel() {
         return mapPanel;
     }
+
+
+
 
     private static boolean pressed = false;
     public static void waitForSpace() {

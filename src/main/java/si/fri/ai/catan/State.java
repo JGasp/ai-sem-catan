@@ -3,6 +3,7 @@ package si.fri.ai.catan;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class State {
 
@@ -33,16 +34,21 @@ public class State {
     private static final int LANDS = 54;
 
     private static final int THIEF = 1;
+    private static final int CURRENT_PLAYER_TURN = 1;
+    private static final int CURRENT_ROUND = 1;
 
-    private static final int MAP_ALLOCATION = LANDS + ROADS + THIEF;
+    private static final int MAP_ALLOCATION = LANDS + ROADS + THIEF + CURRENT_PLAYER_TURN + CURRENT_ROUND;
 
     public static final byte FIGURE_TAG_OFFSET = 10;
     public static final byte ROAD_FIGURES_TAG = 1;
     public static final byte VILLAGE_FIGURES_TAG = 1;
     public static final byte CITY_FIGURES_TAG = 2;
 
-    private float[] avgIncomePerRound;
+
+    private int round;
     private byte[] gameState;
+    private float[] avgIncomePerRound;
+
 
     public State() {
         int finalGameStateSize = MAP_ALLOCATION + NUMBER_OF_PLAYERS * PLAYER_ALLOCATION;
@@ -50,15 +56,32 @@ public class State {
         avgIncomePerRound = new float[DIFFERENT_RESOURCES * NUMBER_OF_PLAYERS];
 
         setThiefLand((byte) 8);
+        setCurrentPlayerIndex((byte) 0);
+        round = 1;
     }
 
     public State(State state) {
         this.gameState = Arrays.copyOf(state.gameState, state.gameState.length);
         this.avgIncomePerRound = Arrays.copyOf(state.avgIncomePerRound, state.avgIncomePerRound.length);
+        this.round = state.round;
     }
 
     public State copy() {
         return new State(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(round, Arrays.hashCode(gameState));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof State) {
+            State that = (State) obj;
+            return round == that.round && Arrays.equals(gameState, that.gameState);
+        }
+        return false;
     }
 
     /**
@@ -388,6 +411,37 @@ public class State {
     public void setThiefLand(byte landIndex) {
         int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS + LANDS;
         gameState[index] = landIndex;
+    }
+
+    public byte getCurrentPlayerIndex() {
+        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS + LANDS + THIEF;
+        return gameState[index];
+    }
+
+    public void setCurrentPlayerIndex(byte playerIndex) {
+        int index = NUMBER_OF_PLAYERS * PLAYER_ALLOCATION + ROADS + LANDS + THIEF;
+        gameState[index] = playerIndex;
+    }
+
+    public void nextPlayerIndex() {
+        byte pi = getCurrentPlayerIndex();
+        pi++;
+
+        if(pi >= State.NUMBER_OF_PLAYERS) {
+            pi = 0;
+        }
+
+        setCurrentPlayerIndex(pi);
+
+        incRound();
+    }
+
+    public void incRound() {
+        this.round++;
+    }
+
+    public int getRound() {
+        return this.round;
     }
 
 }
