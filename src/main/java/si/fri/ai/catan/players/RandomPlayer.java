@@ -46,13 +46,18 @@ public class RandomPlayer extends Player {
         List<Move> allMoves = getGame().getRule().getAllMoves(state, getPlayerIndex());
 
         List<Move> doMoves = new ArrayList<>();
-        if(!allMoves.isEmpty()) {
-            if(allMoves.size() == 1) {
-                doMoves.add(allMoves.get(0));
+
+        while (!allMoves.isEmpty()) {
+            int randMove = Rule.random.nextInt(allMoves.size() + 1);
+
+            if(allMoves.size() > randMove) {
+                Move doMove = allMoves.get(randMove);
+                doMoves.add(doMove);
+                allMoves.remove(doMove);
             } else {
-                Move doneMove = allMoves.get(Rule.random.nextInt(allMoves.size() - 1));
-                doMoves.add(doneMove);
+                break;
             }
+
         }
 
         return doMoves;
