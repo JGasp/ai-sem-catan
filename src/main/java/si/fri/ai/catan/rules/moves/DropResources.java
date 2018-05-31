@@ -5,25 +5,86 @@ import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class DropResources extends Move {
 
-    private ResourceType type;
-    private int amount;
+    private byte[] amounts;
 
-    public DropResources(int playerIndex, ResourceType type, int amount) {
+    public DropResources(int playerIndex) {
         super(playerIndex);
-        this.type = type;
-        this.amount = amount;
+        this.amounts = new byte[State.DIFFERENT_RESOURCES];
     }
+
+    public DropResources(DropResources dr) {
+        super(dr.playerIndex);
+        this.amounts = Arrays.copyOf(dr.amounts, dr.amounts.length);
+    }
+
+    public DropResources copy() {
+        return new DropResources(this);
+    }
+
+    public void add(ResourceType rt, byte amount) {
+        amounts[rt.getIndex()] += amount;
+    }
+
+    public void sub(ResourceType rt, byte amount) {
+        amounts[rt.getIndex()] -= amount;
+    }
+
+    public byte get(ResourceType rt) {
+        return amounts[rt.getIndex()];
+    }
+
+    public int getTotalAmount() {
+        int totalAmount = 0;
+
+        for(int i=0; i<amounts.length; i++) {
+            totalAmount += amounts[i];
+        }
+
+        return totalAmount;
+    }
+
+
+
+
 
     @Override
     public void make(Game game, State state) {
-        state.subResource(playerIndex, type, (byte) amount);
+        for(ResourceType rt : ResourceType.values()) {
+            state.subResource(playerIndex, rt, amounts[rt.getIndex()]);
+        }
     }
-
 
     @Override
     public String toString() {
-        return String.format("[%d] Dropped [%d] of [%s]", playerIndex, amount, type.name());
+        StringBuilder sb = new StringBuilder();
+        sb.append("[" + playerIndex + "] Dropped: " );
+
+        for(ResourceType rt : ResourceType.values()) {
+            byte amount = amounts[rt.getIndex()];
+            if(amount > 0) {
+                sb.append(String.format("[%d] of [%s]", amount, rt.name().substring(0, 1)));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerIndex, amounts);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof DropResources) {
+            DropResources that = (DropResources) obj;
+            return Arrays.equals(this.amounts, that.amounts) && playerIndex == that.playerIndex && amounts == that.amounts;
+        }
+        return false;
     }
 }

@@ -39,17 +39,13 @@ public abstract class Player {
         return game.getMap();
     }
 
-    public Rule getRule() {
-        return game.getRule();
-    }
-
     public void setGame(Game game) {
         this.game = game;
     }
 
-    public abstract PlacingVillage playPlacingTurn(State state);
+    public abstract List<Move> playPlacingTurn(State state);
     public abstract List<Move> playTurn(State state);
-    public abstract List<DropResources> dropResources(State state);
+    public abstract DropResources dropResources(State state);
     public abstract MoveRobber moveRobber(State state);
 
 }

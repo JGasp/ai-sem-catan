@@ -7,6 +7,7 @@ import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Road;
 import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.players.base.Player;
+import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.*;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
@@ -84,7 +85,7 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public PlacingVillage playPlacingTurn(State state) {
+    public List<Move> playPlacingTurn(State state) {
 
         PlayerResAvgInc ri = new PlayerResAvgInc(state, getPlayerIndex());
 
@@ -103,7 +104,14 @@ public class HumanPlayer extends Player {
 
         Road bestLocalRoad = bestGlobalLand.getConnectingRoad(bestLocalLand);
 
-        return new PlacingVillage(getPlayerIndex(), bestGlobalLand.getIndex(), bestLocalRoad.getIndex());
+        PlacingVillage pv = new PlacingVillage(getPlayerIndex(), bestGlobalLand.getIndex());
+        PlacingRoad pr = new PlacingRoad(getPlayerIndex(), bestLocalRoad.getIndex());
+
+        List<Move> placing = new ArrayList<>();
+        placing.add(pv);
+        placing.add(pr);
+
+        return placing;
     }
 
     @Override
@@ -126,7 +134,8 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public List<DropResources> dropResources(State state) {
+    public DropResources dropResources(State state) {
+        DropResources dropResources = new DropResources(getPlayerIndex());
 
         int totalAmount = 0;
 
@@ -154,11 +163,11 @@ public class HumanPlayer extends Player {
                 ra.decAmount(1);
                 if(ra.getAmount() == 0) resourceAmounts.remove(ra);
 
-                drops.add(new DropResources(getPlayerIndex(), ra.getType(), 1));
+                dropResources.add(ra.getType(), (byte) 1);
             }
         }
 
-        return drops;
+        return dropResources;
     }
 
     @Override
@@ -321,7 +330,7 @@ public class HumanPlayer extends Player {
         if(state.isAnyVillageAvailable(getPlayerIndex())) {
 
 
-            getRule().getBuildVillageMoves(state, getPlayerIndex(), buildVillageLocations);
+            Rule.getBuildVillageMoves(getMap(), state, getPlayerIndex(), buildVillageLocations);
 
             if(!buildVillageLocations.isEmpty()) {
 
@@ -391,7 +400,7 @@ public class HumanPlayer extends Player {
             }
 
             List<Move> buildRoadLocations = new ArrayList<>();
-            getRule().getLocationsToBuildRoad(state, getPlayerIndex(), buildRoadLocations);
+            Rule.getLocationsToBuildRoad(getMap(), state, getPlayerIndex(), buildRoadLocations);
 
             List<Move> buildRoadForVillage = buildRoadLocations.stream().filter(move -> {
                 Road r = getMap().gr(((BuildRoad) move).getRoadIndex());
@@ -405,12 +414,12 @@ public class HumanPlayer extends Player {
 
                 if(r.getFrom().isPlayerConnected(state, getPlayerIndex())) {
                     byte landIndex = r.getTo().getIndex();
-                    if(getRule().canBuildVillageOnLand(state, landIndex)) {
+                    if(Rule.canBuildVillageOnLand(getMap(),state, landIndex)) {
                         candidates.put(getMap().gl(landIndex), r);
                     }
                 } else {
                     byte landIndex = r.getFrom().getIndex();
-                    if(getRule().canBuildVillageOnLand(state, landIndex)) {
+                    if(Rule.canBuildVillageOnLand(getMap(),state, landIndex)) {
                         candidates.put(getMap().gl(landIndex), r);
                     }
                 }

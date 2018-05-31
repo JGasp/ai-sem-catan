@@ -1,7 +1,7 @@
 package si.fri.ai.catan.rules;
 
-import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
+import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Road;
 import si.fri.ai.catan.rules.moves.BuildCity;
@@ -18,15 +18,8 @@ public class Rule {
     public static final Random random = new Random();
     private static final int WINNING_POINTS = 10;
 
-    private Game game;
 
-    public Rule(Game game) {
-        this.game = game;
-    }
-
-
-
-    public boolean isWinner(State state, int playerIndex) {
+    public static boolean isWinner(State state, int playerIndex) {
         if(state.getScore(playerIndex) >= WINNING_POINTS) {
             return true;
         }
@@ -42,7 +35,7 @@ public class Rule {
 
 
 
-    public boolean hasResourceToBuildRoad(State state, int playerIndex) {
+    public static boolean hasResourceToBuildRoad(State state, int playerIndex) {
         if(
                 state.getResource(playerIndex, ResourceType.CLAY) >= 1 &&
                 state.getResource(playerIndex, ResourceType.WOOD) >= 1
@@ -52,8 +45,8 @@ public class Rule {
         return false;
     }
 
-    public void getLocationsToBuildRoadForLand(State state, int playerIndex, int sourceRoadIndex, int landIndex, List<Move> moves) {
-        Land land = game.getMap().gl(landIndex);
+    public static void getLocationsToBuildRoadForLand(Map map, State state, int playerIndex, int sourceRoadIndex, int landIndex, List<Move> moves) {
+        Land land = map.gl(landIndex);
 
         for(Road r : land.getRoads()) {
             if(r.getIndex() != sourceRoadIndex) {
@@ -65,30 +58,30 @@ public class Rule {
         }
     }
 
-    public void getLocationsToBuildRoad(State state, int playerIndex, List<Move> moves) {
+    public static void getLocationsToBuildRoad(Map map, State state, int playerIndex, List<Move> moves) {
 
         byte roads = state.getNumberOfRoads(playerIndex);
         for(int i=0; i<roads; i++) {
 
             byte roadIndex = state.getRoadLocation(playerIndex, i);
-            Road road = game.getMap().gr(roadIndex);
+            Road road = map.gr(roadIndex);
 
-            getLocationsToBuildRoadForLand(state, playerIndex, road.getIndex(), road.getTo().getIndex(), moves);
-            getLocationsToBuildRoadForLand(state, playerIndex, road.getIndex(), road.getFrom().getIndex(), moves);
+            getLocationsToBuildRoadForLand(map, state, playerIndex, road.getIndex(), road.getTo().getIndex(), moves);
+            getLocationsToBuildRoadForLand(map, state, playerIndex, road.getIndex(), road.getFrom().getIndex(), moves);
         }
 
     }
 
-    public void canBuildRoad(State state, int playerIndex, List<Move> moves) {
+    public static void canBuildRoad(Map map, State state, int playerIndex, List<Move> moves) {
         if(hasResourceToBuildRoad(state, playerIndex) && state.isAnyRoadAvailable(playerIndex)) {
-            getLocationsToBuildRoad(state, playerIndex, moves);
+            getLocationsToBuildRoad(map, state, playerIndex, moves);
         }
     }
 
 
 
 
-    public boolean hasResourceToBuildVillage(State state, int playerIndex) {
+    public static boolean hasResourceToBuildVillage(State state, int playerIndex) {
         if(
                 state.getResource(playerIndex, ResourceType.CLAY) >= 1 &&
                 state.getResource(playerIndex, ResourceType.WOOD) >= 1 &&
@@ -100,10 +93,10 @@ public class Rule {
         return false;
     }
 
-    public boolean canBuildVillageOnLand(State state, byte landIndex) {
+    public static boolean canBuildVillageOnLand(Map map, State state, byte landIndex) {
         byte landOccupation = state.getLand(landIndex);
         if(landOccupation == 0) {
-            Land l = game.getMap().gl(landIndex);
+            Land l = map.gl(landIndex);
 
             for(Road r : l.getRoads()) {
                 Land neighbour = r.getNeighbour(l);
@@ -118,18 +111,18 @@ public class Rule {
         return false;
     }
 
-    public void getBuildVillageMoves(State state, int playerIndex, List<Move> moves) {
+    public static void getBuildVillageMoves(Map map, State state, int playerIndex, List<Move> moves) {
         if(state.isAnyVillageAvailable(playerIndex)) {
             int roads = state.getNumberOfRoads(playerIndex);
             for(int i=0; i<roads; i++) {
 
-                Road r = game.getMap().gr(state.getRoadLocation(playerIndex, i));
+                Road r = map.gr(state.getRoadLocation(playerIndex, i));
 
-                if(canBuildVillageOnLand(state, r.getTo().getIndex())) {
+                if(canBuildVillageOnLand(map, state, r.getTo().getIndex())) {
                     moves.add(new BuildVillage(playerIndex, r.getTo().getIndex()));
                 }
 
-                if(canBuildVillageOnLand(state, r.getFrom().getIndex())) {
+                if(canBuildVillageOnLand(map, state, r.getFrom().getIndex())) {
                     moves.add(new BuildVillage(playerIndex, r.getFrom().getIndex()));
                 }
 
@@ -137,15 +130,15 @@ public class Rule {
         }
     }
 
-    public void getValidBuildVillageMoves(State state, int playerIndex, List<Move> moves) {
+    public static void getValidBuildVillageMoves(Map map, State state, int playerIndex, List<Move> moves) {
         if(hasResourceToBuildVillage(state, playerIndex)) {
-            getBuildVillageMoves(state, playerIndex, moves);
+            getBuildVillageMoves(map, state, playerIndex, moves);
         }
     }
 
 
 
-    public boolean hasResourceToBuildCity(State state, int playerIndex) {
+    public static boolean hasResourceToBuildCity(State state, int playerIndex) {
         if(
                 state.getResource(playerIndex, ResourceType.IRON) >= 3 &&
                 state.getResource(playerIndex, ResourceType.WHEAT) >= 2
@@ -155,7 +148,7 @@ public class Rule {
         return false;
     }
 
-    public void getBuildCityMoves(State state, int playerIndex, List<Move> moves) {
+    public static void getBuildCityMoves(State state, int playerIndex, List<Move> moves) {
         if(state.isAnyCityAvailable(playerIndex)) {
             int villages = state.getNumberOfVillages(playerIndex);
             for(byte i=0; i<villages; i++) {
@@ -164,7 +157,7 @@ public class Rule {
         }
     }
 
-    public void getValidBuildCityMoves(State state, int playerIndex, List<Move> moves) {
+    public static void getValidBuildCityMoves(State state, int playerIndex, List<Move> moves) {
         if(hasResourceToBuildCity(state, playerIndex)) {
             getBuildCityMoves(state, playerIndex, moves);
         }
@@ -173,7 +166,7 @@ public class Rule {
 
 
 
-    public void canTradeResource(ResourceType in, int playerIndex, int ratio, List<Move> moves) {
+    public static void canTradeResource(ResourceType in, int playerIndex, int ratio, List<Move> moves) {
         for(ResourceType rt : ResourceType.values()) {
             if(rt != in) {
                 moves.add(new TradeResources(playerIndex, in, rt, ratio));
@@ -181,7 +174,7 @@ public class Rule {
         }
     }
 
-    public void canTradeResources(State state, int playerIndex, ResourceType resource, List<Move> moves) {
+    public static void canTradeResources(State state, int playerIndex, ResourceType resource, List<Move> moves) {
 
         byte resourceAmount = state.getResource(playerIndex, resource);
         boolean trading = state.isResourceTrading(playerIndex, resource);
@@ -198,7 +191,7 @@ public class Rule {
         }
     }
 
-    public void canTrade(State state, int playerIndex, List<Move> moves) {
+    public static void canTrade(State state, int playerIndex, List<Move> moves) {
         for(ResourceType rt : ResourceType.values()) {
             canTradeResources(state, playerIndex, rt, moves);
         }
@@ -206,11 +199,11 @@ public class Rule {
 
 
 
-    public List<Move> getAllMoves(State state, int playerIndex) {
+    public static List<Move> getAllMoves(Map map, State state, int playerIndex) {
         List<Move> moves = new ArrayList<>();
 
-        canBuildRoad(state, playerIndex, moves);
-        getValidBuildVillageMoves(state, playerIndex, moves);
+        canBuildRoad(map, state, playerIndex, moves);
+        getValidBuildVillageMoves(map, state, playerIndex, moves);
         getValidBuildCityMoves(state, playerIndex, moves);
 
         canTrade(state, playerIndex, moves);

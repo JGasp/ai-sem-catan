@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class State {
 
-    public static final int NUMBER_OF_PLAYERS = 4;
+    public static final int NUMBER_OF_PLAYERS = 2;
 
     private static final int DICE_VALUES = 10;
 

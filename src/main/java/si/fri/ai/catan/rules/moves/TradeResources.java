@@ -5,6 +5,8 @@ import si.fri.ai.catan.State;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
+import java.util.Objects;
+
 public class TradeResources extends Move {
 
     private ResourceType tradeIn;
@@ -29,5 +31,19 @@ public class TradeResources extends Move {
     @Override
     public String toString() {
         return String.format("[%d] Traded [%d] x [%s] for 1 x [%s]", playerIndex, ratio, tradeIn.name(), tradeOut.name());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerIndex, tradeIn, tradeOut, ratio);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof TradeResources) {
+            TradeResources that = (TradeResources) obj;
+            return tradeIn == that.tradeIn && playerIndex == that.playerIndex && tradeOut == that.tradeOut && ratio == that.ratio;
+        }
+        return false;
     }
 }

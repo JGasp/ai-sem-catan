@@ -7,6 +7,8 @@ import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
+import java.util.Objects;
+
 public class BuildVillage extends Move {
 
     private byte landIndex;
@@ -46,5 +48,19 @@ public class BuildVillage extends Move {
     @Override
     public String toString() {
         return String.format("[%d] Build village on [%d]", playerIndex, landIndex);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerIndex, landIndex);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof BuildVillage) {
+            BuildVillage that = (BuildVillage) obj;
+            return landIndex == that.landIndex && playerIndex == that.playerIndex;
+        }
+        return false;
     }
 }

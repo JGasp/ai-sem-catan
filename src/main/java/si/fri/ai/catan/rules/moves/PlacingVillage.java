@@ -6,20 +6,23 @@ import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.rules.moves.base.Move;
 
+import java.util.Objects;
+
 public class PlacingVillage extends Move {
 
-    private byte landIndex;
-    private byte roadIndex;
+    private byte landIndex ;
 
-    public PlacingVillage(int playerIndex, byte landIndex, byte roadIndex) {
+    public PlacingVillage(int playerIndex, byte landIndex) {
         super(playerIndex);
         this.landIndex = landIndex;
-        this.roadIndex = roadIndex;
     }
 
     @Override
     public void make(Game game, State state) {
 
+        if(landIndex != -1) {
+
+        }
         state.buildVillages(playerIndex, landIndex);
 
         Land l = game.getMap().gl(landIndex);
@@ -34,14 +37,29 @@ public class PlacingVillage extends Move {
         for(Terrain t : l.getTerrains()) {
             addTerrain(t, state, playerIndex);
         }
+    }
 
-        state.buildRoad(playerIndex, roadIndex);
-
+    public byte getLandIndex() {
+        return landIndex;
     }
 
     @Override
     public String toString() {
-        return String.format("[%d] Placed village on [%d] and road on [%d]", playerIndex, landIndex, roadIndex);
+        return String.format("[%d] Placed village on [%d]", playerIndex, landIndex);
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerIndex, landIndex); // TODO TEST Emit road to decrease branching
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof PlacingVillage) {
+            PlacingVillage that = (PlacingVillage) obj;
+            return landIndex == that.landIndex && playerIndex == that.playerIndex;
+        }
+        return false;
+    }
 }

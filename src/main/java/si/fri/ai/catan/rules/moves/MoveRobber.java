@@ -9,6 +9,8 @@ import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
+import java.util.Objects;
+
 public class MoveRobber extends Move {
 
     private byte terrainIndex;
@@ -92,5 +94,19 @@ public class MoveRobber extends Move {
     public String toString() {
         return String.format("[%d] Moved robber to [%d] and took [%s] from player [%d]",
                 playerIndex, terrainIndex, took == null ? "-" : took.name(), robbingPlayerIndex);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playerIndex, terrainIndex, robbingPlayerIndex);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof MoveRobber) {
+            MoveRobber that = (MoveRobber) obj;
+            return terrainIndex == that.terrainIndex && playerIndex == that.playerIndex && robbingPlayerIndex == that.robbingPlayerIndex;
+        }
+        return false;
     }
 }

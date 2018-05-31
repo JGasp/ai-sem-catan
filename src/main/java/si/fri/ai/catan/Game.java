@@ -6,6 +6,7 @@ import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.players.HumanPlayer;
 import si.fri.ai.catan.players.RandomPlayer;
 import si.fri.ai.catan.players.base.Player;
+import si.fri.ai.catan.players.monteCarlo.MonteCarloPlayer;
 import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
@@ -23,7 +24,6 @@ public class Game {
     private boolean displayGui = true;
 
     private Map map;
-    private Rule rule;
     private MapPanel mapPanel;
 
     private Player[] playerList;
@@ -37,7 +37,6 @@ public class Game {
 
     public Game(boolean displayGui) {
         map = new Map();
-        rule = new Rule(this);
         this.displayGui = displayGui;
 
         if(displayGui) {
@@ -50,10 +49,10 @@ public class Game {
 
     public void initPlayers() {
         playerList = new Player[State.NUMBER_OF_PLAYERS];
-        playerList[0] = new HumanPlayer(this, 0);
-        playerList[1] = new HumanPlayer(this,1);
-        playerList[2] = new HumanPlayer(this,2);
-        playerList[3] = new HumanPlayer(this,3);
+        playerList[0] = new RandomPlayer(this, 0);
+        playerList[1] = new MonteCarloPlayer(this,1);
+        /*playerList[2] = new HumanPlayer(this,2);
+        playerList[3] = new HumanPlayer(this,3);*/
     }
 
 
@@ -67,10 +66,12 @@ public class Game {
 
         for(int t=0; t<2; t++) {
             for(Player p : playerList) {
-                 PlacingVillage m = p.playPlacingTurn(state);
-                 m.make(this, state);
+                 List<Move> moves = p.playPlacingTurn(state);
+                 for(Move m : moves) {
+                     m.make(this, state);
 
-                 updateGui(new InfoMessage(m.toString(), p.getPlayerIndex()));
+                     updateGui(new InfoMessage(m.toString(), p.getPlayerIndex()));
+                 }
             }
         }
     }
@@ -88,13 +89,12 @@ public class Game {
             Player p = playerList[playerIndex];
 
             if(dice == 7) {
+                // Drop excessive resources and move thief
                 for(int pi=0; pi<playerList.length; pi++) {
-                    List<DropResources> drop = p.dropResources(state);
-                    for(DropResources m : drop) {
-                        m.make(this, state);
+                    DropResources drop = p.dropResources(state);
+                    drop.make(this, state);
 
-                        updateGui(new InfoMessage(m.toString(), pi));
-                    }
+                    updateGui(new InfoMessage(drop.toString(), pi));
                 }
 
                 MoveRobber m = p.moveRobber(state);
@@ -102,6 +102,7 @@ public class Game {
 
                 updateGui(new InfoMessage(m.toString(), playerIndex) );
             } else {
+                // Add all resources
                 for(int pi=0; pi<playerList.length; pi++) {
                     for(ResourceType rt: ResourceType.values()) {
                         byte amount = state.getResourceIncome(pi, rt, dice);
@@ -123,7 +124,7 @@ public class Game {
                 updateGui(new InfoMessage(m.toString(), playerIndex));
             }
 
-            if(rule.isWinner(state, playerIndex)) {
+            if(Rule.isWinner(state, playerIndex)) {
                 winnerIndex = playerIndex;
                 String info = "Winner was player: " + playerIndex;
                 updateGui(new InfoMessage(info, playerIndex));
@@ -148,10 +149,6 @@ public class Game {
 
     public Map getMap() {
         return map;
-    }
-
-    public Rule getRule() {
-        return rule;
     }
 
     public Byte getWinnerIndex() {

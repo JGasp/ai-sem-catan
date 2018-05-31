@@ -10,6 +10,7 @@ import si.fri.ai.catan.players.base.Player;
 import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
+import si.fri.ai.catan.rules.moves.PlacingRoad;
 import si.fri.ai.catan.rules.moves.PlacingVillage;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
@@ -23,9 +24,9 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public PlacingVillage playPlacingTurn(State state) {
+    public List<Move> playPlacingTurn(State state) {
         while (true) {
-            byte randomLand = (byte) Rule.random.nextInt(getGame().getMap().getLands().size() - 1);
+            byte randomLand = (byte) Rule.random.nextInt(getMap().getLands().size() - 1);
 
             if(state.getLand(randomLand) == 0) {
                 Land l = getGame().getMap().gl(randomLand);
@@ -34,7 +35,14 @@ public class RandomPlayer extends Player {
                 Road r = l.getRoads()[randomLandRoad];
 
                 if(state.getRoad(r.getIndex()) == 0) {
-                    return new PlacingVillage(getPlayerIndex(), randomLand, r.getIndex());
+                    PlacingVillage pv = new PlacingVillage(getPlayerIndex(), randomLand);
+                    PlacingRoad pr = new PlacingRoad(getPlayerIndex(), r.getIndex());
+
+                    List<Move> placing = new ArrayList<>();
+                    placing.add(pv);
+                    placing.add(pr);
+
+                    return placing;
                 }
             }
         }
@@ -43,8 +51,7 @@ public class RandomPlayer extends Player {
     @Override
     public List<Move> playTurn(State state) {
 
-        List<Move> allMoves = getGame().getRule().getAllMoves(state, getPlayerIndex());
-
+        List<Move> allMoves = Rule.getAllMoves(getMap(), state, getPlayerIndex());
         List<Move> doMoves = new ArrayList<>();
 
         while (!allMoves.isEmpty()) {
@@ -64,8 +71,8 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public List<DropResources> dropResources(State state) {
-        List<DropResources> moveList = new ArrayList<>();
+    public DropResources dropResources(State state) {
+        DropResources dropResources = new DropResources(getPlayerIndex());
 
         int index = 0;
         int totalAmount = 0;
@@ -89,7 +96,7 @@ public class RandomPlayer extends Player {
                         checked += ra.getAmount();
 
                         if(checked >= randResource) {
-                            moveList.add(new DropResources(getPlayerIndex(), ra.getType(), 1));
+                            dropResources.add(ra.getType(), (byte) 1);
                             ra.decAmount();
                             totalAmount--;
                             break;
@@ -101,7 +108,7 @@ public class RandomPlayer extends Player {
 
         }
 
-        return moveList;
+        return dropResources;
     }
 
     @Override

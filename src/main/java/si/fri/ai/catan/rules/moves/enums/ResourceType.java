@@ -16,4 +16,15 @@ public enum ResourceType {
     public int getIndex() {
         return index;
     }
+
+    public static ResourceType getRt(int value) {
+        switch (value) {
+            case 0: return WHEAT;
+            case 1: return IRON;
+            case 2: return WOOD;
+            case 3: return SHEEP;
+            case 4: return CLAY;
+            default: return null;
+        }
+    }
 }
