@@ -10,12 +10,15 @@ import si.fri.ai.catan.map.parts.positon.Point;
 import si.fri.ai.catan.map.parts.positon.Vector;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.TimerTask;
+import java.util.Timer;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class MapPanel extends JPanel {
@@ -28,6 +31,8 @@ public class MapPanel extends JPanel {
     private static final Font statsFont = new Font(Font.MONOSPACED, Font.PLAIN, 18);
     private static final Font mapFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
 
+    private ScheduledExecutorService executor;
+
     private JFrame frame;
 
     private Map map;
@@ -36,6 +41,7 @@ public class MapPanel extends JPanel {
     private int maxInfoSize = 30;
     private List<InfoMessage> roundInfo;
 
+    private int timerSeconds = 0;
 
     public MapPanel(Map map) {
         this.map = map;
@@ -75,6 +81,7 @@ public class MapPanel extends JPanel {
         g.fillRect(0,0, 1920, 1080);
 
         paintInfo(g);
+        paintTimer(g);
 
         for(Terrain t : map.getTerrains()) {
             paintTerrain(g, t);
@@ -375,6 +382,29 @@ public class MapPanel extends JPanel {
             g.drawChars(textIndex, 0, textIndex.length, x, y);
         }
 
+    }
+
+    private void paintTimer(Graphics g) {
+        if(timerSeconds > 0) {
+            g.setColor(Color.BLACK);
+            char[] textIndex = String.format("Remaining time: %5d", timerSeconds).toCharArray();
+            g.drawChars(textIndex, 0, textIndex.length, X_OFFSET - 100, 25);
+        }
+    }
+
+    public void startTime(int seconds) {
+        timerSeconds = seconds;
+        if(executor == null) {
+             executor = Executors.newSingleThreadScheduledExecutor();
+             executor.scheduleAtFixedRate(() -> timerTick(), 0, 1, TimeUnit.SECONDS);
+        }
+    }
+
+    private void timerTick() {
+        if(timerSeconds > 0) {
+            timerSeconds--;
+            repaint();
+        }
     }
 
 }

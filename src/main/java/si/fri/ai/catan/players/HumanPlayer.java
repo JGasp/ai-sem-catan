@@ -68,7 +68,7 @@ public class HumanPlayer extends Player {
 
             PlayerResAvgInc tempResourceIncome = playerResAvgInc.copy();
 
-            if(state.getLand(l.getIndex()) == 0) {
+            if(Rule.canBuildVillageOnLand(getMap(), state, l.getIndex())) {
                 for(Terrain t : l.getTerrains()) {
                     tempResourceIncome.addAvgIncome(t.getType(), State.getDiceRatio(t.getDice()));
                 }

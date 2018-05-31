@@ -15,9 +15,9 @@ public class MCNode {
         this.move = move;
 
         if(move == null) {
-            this.hashCode = Objects.hash(state.hashCode());
+            this.hashCode = Objects.hash(11, state.hashCode());
         } else if(move instanceof TradeResources) {
-
+            this.hashCode = Objects.hash(17, state.hashCode());
         } else {
             this.hashCode = Objects.hash(state.hashCode(), move.hashCode());
         }
@@ -36,9 +36,10 @@ public class MCNode {
     public boolean equals(Object obj) {
         if(obj instanceof MCNode) {
             MCNode that = (MCNode) obj;
-            return move.equals(that.move);
-        } else {
-            return false;
+            if(move != null && that.move != null) {
+                return move.equals(that.move);
+            }
         }
+        return false;
     }
 }

@@ -50,8 +50,6 @@ public class DropResources extends Move {
 
 
 
-
-
     @Override
     public void make(Game game, State state) {
         for(ResourceType rt : ResourceType.values()) {

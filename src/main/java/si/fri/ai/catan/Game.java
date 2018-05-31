@@ -6,11 +6,10 @@ import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.players.HumanPlayer;
 import si.fri.ai.catan.players.RandomPlayer;
 import si.fri.ai.catan.players.base.Player;
-import si.fri.ai.catan.players.monteCarlo.MonteCarloPlayer;
+import si.fri.ai.catan.players.MonteCarloPlayer;
 import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
-import si.fri.ai.catan.rules.moves.PlacingVillage;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
@@ -49,7 +48,8 @@ public class Game {
 
     public void initPlayers() {
         playerList = new Player[State.NUMBER_OF_PLAYERS];
-        playerList[0] = new RandomPlayer(this, 0);
+        playerList[0] = new HumanPlayer(this, 0);
+        //playerList[0] = new RandomPlayer(this, 0);
         playerList[1] = new MonteCarloPlayer(this,1);
         /*playerList[2] = new HumanPlayer(this,2);
         playerList[3] = new HumanPlayer(this,3);*/
@@ -72,6 +72,7 @@ public class Game {
 
                      updateGui(new InfoMessage(m.toString(), p.getPlayerIndex()));
                  }
+                 state.nextPlayerIndex();
             }
         }
     }
@@ -94,7 +95,9 @@ public class Game {
                     DropResources drop = p.dropResources(state);
                     drop.make(this, state);
 
-                    updateGui(new InfoMessage(drop.toString(), pi));
+                    if(drop.getTotalAmount() > 0) {
+                        updateGui(new InfoMessage(drop.toString(), pi));
+                    }
                 }
 
                 MoveRobber m = p.moveRobber(state);
@@ -164,7 +167,7 @@ public class Game {
             mapPanel.updateState(state, roundInfo);
 
             if(wait) {
-                waitForSpace();
+                //waitForSpace();
             }
         }
     }

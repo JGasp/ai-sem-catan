@@ -72,7 +72,7 @@ public class Rule {
 
     }
 
-    public static void canBuildRoad(Map map, State state, int playerIndex, List<Move> moves) {
+    public static void canBuildRoadMoves(Map map, State state, int playerIndex, List<Move> moves) {
         if(hasResourceToBuildRoad(state, playerIndex) && state.isAnyRoadAvailable(playerIndex)) {
             getLocationsToBuildRoad(map, state, playerIndex, moves);
         }
@@ -202,7 +202,7 @@ public class Rule {
     public static List<Move> getAllMoves(Map map, State state, int playerIndex) {
         List<Move> moves = new ArrayList<>();
 
-        canBuildRoad(map, state, playerIndex, moves);
+        canBuildRoadMoves(map, state, playerIndex, moves);
         getValidBuildVillageMoves(map, state, playerIndex, moves);
         getValidBuildCityMoves(state, playerIndex, moves);
 

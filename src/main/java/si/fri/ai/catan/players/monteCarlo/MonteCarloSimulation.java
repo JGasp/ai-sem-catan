@@ -2,9 +2,7 @@ package si.fri.ai.catan.players.monteCarlo;
 
 import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
-import si.fri.ai.catan.dto.InfoMessage;
 import si.fri.ai.catan.dto.PlayerResAmount;
-import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Road;
 import si.fri.ai.catan.map.parts.Terrain;
@@ -27,8 +25,8 @@ import java.util.List;
 public class MonteCarloSimulation {
 
     private static final int maxRounds = 1000;
-    private static final int duration = 30 * 1000;
-
+    private static final int DURATION_SECONDS = 60;
+    private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
 
     private byte thisPlayerIndex;
     private Game game;
@@ -59,6 +57,7 @@ public class MonteCarloSimulation {
     public List<Move> getTurnMoves(State state) {
         this.entryPoint = EntryPoint.TURN;
         this.initialState = state;
+        this.initialMoves = null;
 
         memorized = new HashMap<>();
 
@@ -68,10 +67,13 @@ public class MonteCarloSimulation {
         }
 
         long now = System.currentTimeMillis();
-        long end = now + duration;
+        long end = now + DURATION_MILLISECONDS;
 
+        game.getMapPanel().startTime(DURATION_SECONDS);
+        int simulationRun = 0;
         while (now < end) {
             runSimulation();
+            simulationRun++;
             now = System.currentTimeMillis();
         }
 
@@ -81,12 +83,14 @@ public class MonteCarloSimulation {
         List<MCNode> currentMoves = initialMoves;
         while (true) {
 
-            double bestScore = -1;
+            double bestWr = -1;
             MCNode bestMove = currentMoves.get(0);
             for(MCNode m : currentMoves) {
                 MCScore score = memorized.get(m);
                 if(score != null) {
-                    if(bestScore < score.getWinRatio()) {
+                    double wr = score.getWinRatio();
+                    if(bestWr < wr) {
+                        bestWr = wr;
                         bestMove = score.getNode();
                     }
                 }
@@ -102,8 +106,19 @@ public class MonteCarloSimulation {
                 Rule.getAllMoves(game.getMap(), tempState, thisPlayerIndex).forEach(move -> {
                     currentMoves.add(new MCNode(move, tempState));
                 });
+                currentMoves.add(new MCNode(null, tempState));
             }
         }
+
+        StringBuilder sb = new StringBuilder();
+        for(Move m : doMoves) {
+            sb.append("- ");
+            sb.append(m.toString());
+            sb.append("\n");
+        }
+
+        System.out.printf("--> Round: %d \t Simulation ran: %d \t Best Turn Moves:\n%s",
+                state.getRound(), simulationRun, sb.toString());
 
         return doMoves;
     }
@@ -111,51 +126,64 @@ public class MonteCarloSimulation {
     public List<Move> getPlacingMoves(State state) {
         this.entryPoint = EntryPoint.PLACING_TURN;
         this.initialState = state;
+        this.initialMoves = null;
 
         memorized = new HashMap<>();
 
 
         long now = System.currentTimeMillis();
-        long end = now + duration;
+        long end = now + DURATION_MILLISECONDS;
 
+        game.getMapPanel().startTime(DURATION_SECONDS);
+        int simulationRun = 0;
         while (now < end) {
             runSimulation();
+            simulationRun++;
             now = System.currentTimeMillis();
         }
-
 
         State tempState = state.copy();
         List<MCNode> currentMoves = initialMoves;
 
-        double bestScore = -1;
+        double bestWr = -1;
         MCNode bestVillagePlacingMove = currentMoves.get(0);
         for(MCNode m : currentMoves) {
             MCScore score = memorized.get(m);
             if(score != null) {
-                if(bestScore < score.getWinRatio()) {
+                double wr = score.getWinRatio();
+                if(bestWr < wr) {
+                    bestWr = wr;
                     bestVillagePlacingMove = score.getNode();
                 }
             }
         }
-        bestVillagePlacingMove.getMove().make(game, tempState);
 
         PlacingVillage pv = (PlacingVillage) bestVillagePlacingMove.getMove();
+
+        pv.make(game, tempState);
 
         currentMoves.clear();
         for(Road r : game.getMap().gl(pv.getLandIndex()).getRoads()) {
             currentMoves.add(new MCNode(new PlacingRoad(thisPlayerIndex, r.getIndex()), tempState));
         }
 
-        bestScore = -1;
+        bestWr = -1;
         MCNode bestRoadPlacingMove = currentMoves.get(0);
         for(MCNode m : currentMoves) {
             MCScore score = memorized.get(m);
             if(score != null) {
-                if(bestScore < score.getWinRatio()) {
+                double wr = score.getWinRatio();
+                if(bestWr < wr) {
+                    bestWr = wr;
                     bestRoadPlacingMove = score.getNode();
                 }
             }
         }
+
+        System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s",
+                state.getRound(), simulationRun,
+                bestVillagePlacingMove.getMove().toString(),
+                bestRoadPlacingMove.getMove().toString());
 
         List<Move> doMoves = new ArrayList<>();
         doMoves.add(bestVillagePlacingMove.getMove());
@@ -166,15 +194,18 @@ public class MonteCarloSimulation {
     public DropResources getDropResourceMove(State state) {
         this.entryPoint = EntryPoint.DROP_RESOURCES;
         this.initialState = state;
+        this.initialMoves = null;
 
         memorized = new HashMap<>();
 
-
         long now = System.currentTimeMillis();
-        long end = now + duration;
+        long end = now + DURATION_MILLISECONDS;
 
+        game.getMapPanel().startTime(DURATION_SECONDS);
+        int simulationRun = 0;
         while (now < end) {
             runSimulation();
+            simulationRun++;
             now = System.currentTimeMillis();
         }
 
@@ -191,6 +222,8 @@ public class MonteCarloSimulation {
             }
         }
 
+        System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Resource Drop: %s",
+                state.getRound(), simulationRun, bestDropResourceMove.getMove().toString());
 
         return (DropResources) bestDropResourceMove.getMove();
     }
@@ -198,32 +231,38 @@ public class MonteCarloSimulation {
     public MoveRobber getMoveRobberMove(State state) {
         this.entryPoint = EntryPoint.MOVE_ROBBER;
         this.initialState = state;
+        this.initialMoves = null;
 
         memorized = new HashMap<>();
 
-
         long now = System.currentTimeMillis();
-        long end = now + duration;
+        long end = now + DURATION_MILLISECONDS;
 
+        game.getMapPanel().startTime(DURATION_SECONDS);
+        int simulationRun = 0;
         while (now < end) {
             runSimulation();
+            simulationRun++;
             now = System.currentTimeMillis();
         }
 
         List<MCNode> currentMoves = initialMoves;
         double bestScore = -1;
-        MCNode bestDropResourceMove = currentMoves.get(0);
+        MCNode bestRobberMove = currentMoves.get(0);
         for(MCNode m : currentMoves) {
             MCScore score = memorized.get(m);
             if(score != null) {
                 if(bestScore < score.getWinRatio()) {
-                    bestDropResourceMove = score.getNode();
+                    bestRobberMove = score.getNode();
                 }
             }
         }
 
+        System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Robber move: %s",
+                state.getRound(), simulationRun, bestRobberMove.getMove().toString());
 
-        return (MoveRobber) bestDropResourceMove.getMove();
+
+        return (MoveRobber) bestRobberMove.getMove();
     }
 
 
@@ -247,14 +286,12 @@ public class MonteCarloSimulation {
     }
 
     private int runSimulationEntry(State state, HashSet<MCNode> visitedStates) {
-        int remainingPlacingTurns = 0;
+        int placingTurns = 0;
 
         if(entryPoint == EntryPoint.PLACING_TURN) {
             int num = state.getNumberOfVillages(thisPlayerIndex);
-            if(num == 0) {
-                remainingPlacingTurns += State.NUMBER_OF_PLAYERS;
-            }
-            remainingPlacingTurns += State.NUMBER_OF_PLAYERS - thisPlayerIndex - 1;
+            if(num == 0) placingTurns += State.NUMBER_OF_PLAYERS;
+            placingTurns += State.NUMBER_OF_PLAYERS - thisPlayerIndex - 1;
 
             runSimulateEntryPlacing(state, visitedStates);
         } else {
@@ -267,7 +304,7 @@ public class MonteCarloSimulation {
             }
         }
 
-        return remainingPlacingTurns;
+        return placingTurns;
     }
 
 
@@ -276,12 +313,13 @@ public class MonteCarloSimulation {
         MCNode nextMove = playTurnMove(state);
         while (nextMove.getMove() != null) {
             nextMove.getMove().make(game, state);
-            visitedStates.add(new MCNode(null, state));
+            visitedStates.add(nextMove);
 
             nextMove = playTurnMove(state);
         }
+        visitedStates.add(nextMove);
 
-        visitedStates.add(new MCNode(null, state));
+        state.nextPlayerIndex();
     }
 
     private MCNode playTurnMove(State state) {
@@ -302,9 +340,11 @@ public class MonteCarloSimulation {
         } else {
             List<Move> allRaw = Rule.getAllMoves(game.getMap(), state, thisPlayerIndex);
 
+            MCNode skipTurn = new MCNode(null, state);
+
             int totalPlays = 0;
             if(allRaw.isEmpty()) {
-                return new MCNode(null, state);
+                return skipTurn;
             } else {
 
                 List<MCNode> allMoves = new ArrayList<>();
@@ -321,7 +361,17 @@ public class MonteCarloSimulation {
                     }
                 }
 
-                if(state.equals(initialState)) {
+                // Add skip turn / null move
+                allMoves.add(skipTurn);
+                MCScore score = memorized.get(skipTurn);
+                if (score != null) {
+                    totalPlays += score.getPlays();
+                    allMemorized.add(score);
+                }
+                // Add skip turn / null move
+
+
+                if(initialMoves == null && state.equals(initialState)) {
                     initialMoves = allMoves;
                 }
 
@@ -344,34 +394,50 @@ public class MonteCarloSimulation {
         List<MCNode> allMoves = new ArrayList<>();
 
         int totalPlays = 0;
-        byte robberTerrainIndex = state.getThiefTerrain();
-        for(Terrain t : game.getMap().getTerrains()) {
-            if(t.getIndex() != robberTerrainIndex) {
+        if(state.equals(initialState) && initialMoves != null) {
+            allMoves = initialMoves;
 
-                HashSet<Integer> playersToRob = new HashSet<>();
-                for(Land l : t.getLands()) {
-                    byte occupied = state.getLand(l.getIndex());
-                    if(occupied != 0) {
-                        int playerIndex = occupied / 10;
-                        if(playerIndex != thisPlayerIndex) {
-                            playersToRob.add(playerIndex);
+            for(MCNode node : initialMoves) {
+                MCScore score = memorized.get(node);
+                if(score != null) {
+                    totalPlays += score.getPlays();
+                    allMemorized.add(score);
+                }
+            }
+        } else {
+            byte robberTerrainIndex = state.getThiefTerrain();
+            for(Terrain t : game.getMap().getTerrains()) {
+                if(t.getIndex() != robberTerrainIndex) {
+
+                    HashSet<Integer> playersToRob = new HashSet<>();
+                    for(Land l : t.getLands()) {
+                        byte occupied = state.getLand(l.getIndex());
+                        if(occupied != 0) {
+                            int playerIndex = occupied / 10;
+                            if(playerIndex != thisPlayerIndex) {
+                                playersToRob.add(playerIndex);
+                            }
+                        }
+                    }
+                    if(playersToRob.size() == 0) playersToRob.add(-1); // Add no one to rob
+
+                    for(Integer pi : playersToRob) {
+                        MoveRobber mr = new MoveRobber(thisPlayerIndex, t.getIndex(), pi);
+
+                        MCNode node = new MCNode(mr, state);
+                        allMoves.add(node);
+
+                        MCScore score = memorized.get(node);
+                        if(score != null) {
+                            totalPlays += score.getPlays();
+                            allMemorized.add(score);
                         }
                     }
                 }
-                if(playersToRob.size() == 0) playersToRob.add(-1); // Add no one to rob
+            }
 
-                for(Integer pi : playersToRob) {
-                    MoveRobber mr = new MoveRobber(thisPlayerIndex, t.getIndex(), pi);
-
-                    MCNode node = new MCNode(mr, state);
-                    allMoves.add(node);
-
-                    MCScore score = memorized.get(node);
-                    if(score != null) {
-                        totalPlays += score.getPlays();
-                        allMemorized.add(score);
-                    }
-                }
+            if(initialMoves == null && state.equals(initialState)){
+                initialMoves = allMoves;
             }
         }
 
@@ -398,17 +464,22 @@ public class MonteCarloSimulation {
         } else {
             MoveRobber mr = currentPlayer.moveRobber(state);
             mr.make(game, state);
-
-            List<Move> pt = currentPlayer.playTurn(state);
-            for(Move m : pt) {
-                m.make(game, state);
-            }
         }
     }
 
     private MCNode playDropResource(State state) {
         List<MCScore> allMemorized = new ArrayList<>();
-        List<MCNode> allMoves = generateAllPossibleResourceDrops(state);
+
+        List<MCNode> allMoves;
+        if(state.equals(initialState) && initialMoves != null) {
+            allMoves = initialMoves;
+        } else {
+            allMoves = generateAllPossibleResourceDrops(state);
+
+            if(initialMoves == null && state.equals(initialState)) {
+                initialMoves = allMoves;
+            }
+        }
 
         int totalPlays = 0;
         for(MCNode node : allMoves) {
@@ -459,6 +530,8 @@ public class MonteCarloSimulation {
         MCNode placeRoad = playPlacingRoadTurn(state, (PlacingVillage) placeVillage.getMove());
         placeRoad.getMove().make(game, state);
         visitedStates.add(placeRoad);
+
+        state.nextPlayerIndex();
     }
 
     private MCNode playPlacingRoadTurn(State state, PlacingVillage pv) {
@@ -467,7 +540,7 @@ public class MonteCarloSimulation {
 
         int totalPlays = 0;
         for(Road r : game.getMap().gl(pv.getLandIndex()).getRoads()) {
-            byte occupied = state.getLand(r.getIndex());
+            byte occupied = state.getRoad(r.getIndex());
 
             if(occupied == 0) {
                 PlacingRoad pr = new PlacingRoad(thisPlayerIndex, r.getIndex());
@@ -491,20 +564,33 @@ public class MonteCarloSimulation {
         List<MCScore> allMemorized = new ArrayList<>();
 
         int totalPlays = 0;
-        for(Land l : game.getMap().getLands()) {
-            byte occupied = state.getLand(l.getIndex());
-
-            if(occupied == 0) {
-                PlacingVillage pv = new PlacingVillage(thisPlayerIndex, l.getIndex());
-
-                MCNode node = new MCNode(pv, state);
-                allMoves.add(node);
-
+        if(state.equals(initialState) && initialMoves != null) {
+            allMoves = initialMoves;
+            for(MCNode node : allMoves) {
                 MCScore nodeMem = memorized.get(node);
                 if(nodeMem != null) {
                     totalPlays += nodeMem.getPlays();
                     allMemorized.add(nodeMem);
                 }
+            }
+        } else {
+            for(Land l : game.getMap().getLands()) {
+                if(Rule.canBuildVillageOnLand(game.getMap(), state, l.getIndex())) {
+                    PlacingVillage pv = new PlacingVillage(thisPlayerIndex, l.getIndex());
+
+                    MCNode node = new MCNode(pv, state);
+                    allMoves.add(node);
+
+                    MCScore nodeMem = memorized.get(node);
+                    if(nodeMem != null) {
+                        totalPlays += nodeMem.getPlays();
+                        allMemorized.add(nodeMem);
+                    }
+                }
+            }
+
+            if(initialMoves == null && state.equals(initialState)) {
+                initialMoves = allMoves;
             }
         }
 
@@ -528,8 +614,8 @@ public class MonteCarloSimulation {
             int random = Rule.random.nextInt(allMoves.size());
 
             MCNode node = allMoves.get(random);
-            MCScore score = memorized.get(node);
 
+            MCScore score = memorized.get(node);
             if(score == null) {
                 memorized.put(node, new MCScore(node));
             }
@@ -592,6 +678,8 @@ public class MonteCarloSimulation {
                     break;
                 }
             }
+
+            state.nextPlayerIndex();
         }
 
         return winner;

@@ -28,7 +28,7 @@ public class RandomPlayer extends Player {
         while (true) {
             byte randomLand = (byte) Rule.random.nextInt(getMap().getLands().size() - 1);
 
-            if(state.getLand(randomLand) == 0) {
+            if(Rule.canBuildVillageOnLand(getMap(), state, randomLand)) {
                 Land l = getGame().getMap().gl(randomLand);
 
                 byte randomLandRoad = (byte) Rule.random.nextInt(l.getRoads().length - 1);
@@ -50,17 +50,20 @@ public class RandomPlayer extends Player {
 
     @Override
     public List<Move> playTurn(State state) {
+        State tempState = state.copy();
 
-        List<Move> allMoves = Rule.getAllMoves(getMap(), state, getPlayerIndex());
         List<Move> doMoves = new ArrayList<>();
-
+        List<Move> allMoves = Rule.getAllMoves(getMap(), tempState, getPlayerIndex());
         while (!allMoves.isEmpty()) {
             int randMove = Rule.random.nextInt(allMoves.size() + 1);
 
             if(allMoves.size() > randMove) {
                 Move doMove = allMoves.get(randMove);
                 doMoves.add(doMove);
-                allMoves.remove(doMove);
+
+                doMove.make(getGame(), tempState);
+
+                allMoves = Rule.getAllMoves(getMap(), tempState, getPlayerIndex());
             } else {
                 break;
             }
