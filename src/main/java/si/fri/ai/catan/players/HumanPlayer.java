@@ -1,6 +1,5 @@
 package si.fri.ai.catan.players;
 
-import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
 import si.fri.ai.catan.dto.*;
 import si.fri.ai.catan.map.parts.Land;
@@ -12,14 +11,13 @@ import si.fri.ai.catan.rules.moves.*;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class HumanPlayer extends Player {
 
-    public HumanPlayer(Game game, int playerIndex) {
-        super(game, playerIndex);
+    public HumanPlayer(int playerIndex) {
+        super(playerIndex);
     }
 
     private float getResourceIncomeScore(State state, PlayerResAvgInc prai) {

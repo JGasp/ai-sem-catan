@@ -30,7 +30,7 @@ public class PlacingRoad extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, roadIndex); // TODO TEST Emit road to decrease branching
+        return Objects.hash(PlacingRoad.class.getSimpleName(), playerIndex, roadIndex);
     }
 
     @Override

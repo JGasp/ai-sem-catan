@@ -65,7 +65,7 @@ public class DropResources extends Move {
         for(ResourceType rt : ResourceType.values()) {
             byte amount = amounts[rt.getIndex()];
             if(amount > 0) {
-                sb.append(String.format("[%d] of [%s]", amount, rt.name().substring(0, 1)));
+                sb.append(String.format("[%d/%s],", amount, rt.name()));
             }
         }
 
@@ -74,7 +74,7 @@ public class DropResources extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, amounts);
+        return Objects.hash(DropResources.class.getSimpleName(), playerIndex, amounts);
     }
 
     @Override

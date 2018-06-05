@@ -12,6 +12,7 @@ import java.util.Objects;
 public class BuildCity extends Move {
 
     private byte villageIndex;
+    private byte landIndex;
 
     public BuildCity(int playerIndex, byte villageIndex) {
         super(playerIndex);
@@ -24,7 +25,7 @@ public class BuildCity extends Move {
         state.subResource(playerIndex, ResourceType.IRON, (byte) 3);
         state.subResource(playerIndex, ResourceType.WHEAT, (byte) 2);
 
-        byte landIndex = state.buildCity(playerIndex, villageIndex);
+        landIndex = state.buildCity(playerIndex, villageIndex);
 
         Land l = game.getMap().gl(landIndex);
 
@@ -37,12 +38,12 @@ public class BuildCity extends Move {
 
     @Override
     public String toString() {
-        return String.format("[%d] Build city on [%d]", playerIndex, villageIndex);
+        return String.format("[%d] Build city on land [%d] upon village [%d]", playerIndex, landIndex, villageIndex);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, villageIndex);
+        return Objects.hash(BuildCity.class.getSimpleName(), playerIndex, villageIndex);
     }
 
     @Override

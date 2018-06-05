@@ -51,7 +51,7 @@ public class PlacingVillage extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, landIndex); // TODO TEST Emit road to decrease branching
+        return Objects.hash(PlacingVillage.class.getSimpleName(), playerIndex, landIndex);
     }
 
     @Override

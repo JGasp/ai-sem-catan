@@ -2,6 +2,8 @@ package si.fri.ai.catan.gui;
 
 import si.fri.ai.catan.State;
 import si.fri.ai.catan.dto.InfoMessage;
+import si.fri.ai.catan.dto.PlayerResAmount;
+import si.fri.ai.catan.dto.PlayerResAvgInc;
 import si.fri.ai.catan.map.Map;
 import si.fri.ai.catan.map.parts.Land;
 import si.fri.ai.catan.map.parts.Road;
@@ -151,17 +153,22 @@ public class MapPanel extends JPanel {
         char[] textIndex = String.format("%5d \t %5d \t %7d \t %4d", score, roads, villages, cities).toCharArray();
         g.drawChars(textIndex, 0, textIndex.length, xOffsetRight, yOffsetBottom);
 
+        PlayerResAmount pra = new PlayerResAmount(state, playerIndex);
 
-        int wood = state.getResource(playerIndex, ResourceType.WOOD);
-        int iron = state.getResource(playerIndex, ResourceType.IRON);
-        int clay = state.getResource(playerIndex, ResourceType.CLAY);
-        int wheat = state.getResource(playerIndex, ResourceType.WHEAT);
-        int sheep = state.getResource(playerIndex, ResourceType.SHEEP);
+        textIndex = String.format("[$$] \t %3d \t %3d \t %3d \t %3d \t %3d",
+                pra.get(ResourceType.WOOD), pra.get(ResourceType.IRON), pra.get(ResourceType.CLAY),
+                pra.get(ResourceType.WHEAT), pra.get(ResourceType.SHEEP)).toCharArray();
 
-        textIndex = String.format("[$$] \t %3d \t %3d \t %3d \t %3d \t %3d", wood, iron, clay, wheat, sheep).toCharArray();
         int yOffset = playerIndex * 200 + 60;
         g.drawChars(textIndex, 0, textIndex.length, 50, yOffset);
 
+        PlayerResAvgInc prai = new PlayerResAvgInc(state, playerIndex);
+
+        textIndex = String.format("[  ] \t%1.2f \t%1.2f \t%1.2f \t%1.2f \t%1.2f",
+                prai.get(ResourceType.WOOD), prai.get(ResourceType.IRON), prai.get(ResourceType.CLAY),
+                prai.get(ResourceType.WHEAT), prai.get(ResourceType.SHEEP)).toCharArray();
+        yOffset += 15;
+        g.drawChars(textIndex, 0, textIndex.length, 50, yOffset);
 
         String anyTr = state.isAnyResourceTrading(playerIndex) ? "*" : "-";
         String woodTr = state.isResourceTrading(playerIndex, ResourceType.WOOD) ? "*" : "-";
@@ -264,7 +271,7 @@ public class MapPanel extends JPanel {
         if(l.isAnyTrading()) {
             trading = "|*";
         } else if(l.getTrading() != null) {
-            trading = "|" + l.getTrading().name().substring(0, 1);
+            trading = "|" + l.getTrading().name().substring(0, 2);
         }
 
         char[] textIndex = String.format("%d%s", l.getIndex(), trading).toCharArray();

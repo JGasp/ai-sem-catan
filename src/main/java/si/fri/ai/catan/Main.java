@@ -1,19 +1,26 @@
 package si.fri.ai.catan;
 
+import si.fri.ai.catan.dto.Counter;
+import si.fri.ai.catan.players.HumanPlayer;
+import si.fri.ai.catan.players.MonteCarloPlayer;
+import si.fri.ai.catan.players.RandomPlayer;
+import si.fri.ai.catan.players.base.Player;
 import si.fri.ai.catan.rules.Rule;
+
+import java.util.HashMap;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        playGame();
-        //playGames();
+        //playGame();
+        playGames();
         //testDiceFairness();
 
     }
 
     public static void playGame() {
-        Game game = new Game();
+        Game game = new Game(getHumanVsMonteCarlo(true));
         game.start();
     }
 
@@ -39,22 +46,76 @@ public class Main {
     }
 
     public static void playGames() {
-        long[] playerWins = new long[State.NUMBER_OF_PLAYERS];
+
+        //Player[] players = getRngVsMonteCarlo(false);
+        Player[] players = getRngVsMonteCarlo(false);
+
+        HashMap<Player, Counter> counters = new HashMap<>();
+        for(Player p : players) {
+            counters.put(p, new Counter());
+        }
 
         long count = 0;
         while (count < 100000) {
             count++;
 
-            Game game = new Game(false);
+            Game game = new Game(players,false);
             game.start();
 
-            playerWins[game.getWinnerIndex()]++;
+            int pi = game.getWinnerIndex();
+            if(pi >= 0) {
+                Counter c = counters.get(players[pi]);
+                c.inc();
+            }
+
+            printScore(counters);
+
+            swapPlayerPosition(players);
         }
 
-        for(int pi=0; pi<State.NUMBER_OF_PLAYERS; pi++) {
-            System.out.printf("Player: [%d] \t Wins: [%d]\n", pi, playerWins[pi]);
-        }
+    }
 
+    private static void printScore(HashMap<Player, Counter> counters) {
+        System.out.print("Score: ");
+        for(Player p : counters.keySet()) {
+            int wins = counters.get(p).getValue();
+            System.out.printf("%s: %d \t", p.getClass().getSimpleName(), wins);
+        }
+        System.out.println();
+
+    }
+
+    public static Player[] getHumanVsMonteCarlo(boolean verbose) {
+        Player[] players = new Player[2];
+        players[0] = new MonteCarloPlayer(0, verbose);
+        players[1] = new HumanPlayer(1);
+
+        return players;
+    }
+
+    public static Player[] getRngVsMonteCarlo(boolean verbose) {
+        Player[] players = new Player[2];
+        players[0] = new MonteCarloPlayer(0, verbose);
+        players[1] = new RandomPlayer(1);
+
+        return players;
+    }
+
+    public static Player[] getRngVsHuman() {
+        Player[] players = new Player[2];
+        players[0] = new RandomPlayer(0);
+        players[1] = new HumanPlayer(1);
+
+        return players;
+    }
+
+    public static void swapPlayerPosition(Player[] players) {
+        Player temp = players[0];
+        players[0] = players[1];
+        players[1] = temp;
+
+        players[0].setPlayerIndex(0);
+        players[1].setPlayerIndex(1);
     }
 
 }

@@ -98,7 +98,7 @@ public class MoveRobber extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, terrainIndex, robbingPlayerIndex);
+        return Objects.hash(MoveRobber.class.getSimpleName(), playerIndex, terrainIndex, robbingPlayerIndex);
     }
 
     @Override

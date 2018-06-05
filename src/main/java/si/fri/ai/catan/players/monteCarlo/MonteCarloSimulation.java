@@ -9,10 +9,7 @@ import si.fri.ai.catan.map.parts.Terrain;
 import si.fri.ai.catan.players.RandomPlayer;
 import si.fri.ai.catan.players.base.Player;
 import si.fri.ai.catan.rules.Rule;
-import si.fri.ai.catan.rules.moves.DropResources;
-import si.fri.ai.catan.rules.moves.MoveRobber;
-import si.fri.ai.catan.rules.moves.PlacingRoad;
-import si.fri.ai.catan.rules.moves.PlacingVillage;
+import si.fri.ai.catan.rules.moves.*;
 import si.fri.ai.catan.rules.moves.base.Move;
 import si.fri.ai.catan.rules.moves.enums.ResourceType;
 
@@ -22,11 +19,22 @@ import java.util.HashSet;
 import java.util.List;
 
 
+/**
+ * Score: HumanPlayer: 100000 	RandomPlayer: 0
+ *
+ * 15s Score: MonteCarloPlayer: 188 	HumanPlayer: 315
+ * 5s Score: MonteCarloPlayer: 46 	HumanPlayer: 86
+ * 60s Score: MonteCarloPlayer: 36 	HumanPlayer: 55
+ */
+
+
 public class MonteCarloSimulation {
 
     private static final int maxRounds = 1000;
-    private static final int DURATION_SECONDS = 60;
+    private static final int DURATION_SECONDS = 1;
     private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
+
+    boolean verbose;
 
     private byte thisPlayerIndex;
     private Game game;
@@ -39,17 +47,30 @@ public class MonteCarloSimulation {
     private HashMap<MCNode, MCScore> memorized;
     private List<MCNode> initialMoves;
 
-    public MonteCarloSimulation(Game game, int playerIndex) {
-        this.game = game;
+    public MonteCarloSimulation(int playerIndex) {
         this.thisPlayerIndex = (byte) playerIndex;
+        this.verbose = true;
+    }
 
+    public MonteCarloSimulation(int playerIndex, boolean verbose) {
+        this.thisPlayerIndex = (byte) playerIndex;
+        this.verbose = verbose;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
         initPlayers(game);
+    }
+
+    public void setThisPlayerIndex(byte thisPlayerIndex) {
+        this.thisPlayerIndex = thisPlayerIndex;
     }
 
     private void initPlayers(Game game) {
         players = new Player[State.NUMBER_OF_PLAYERS];
         for(int p=0; p<players.length; p++) {
-            players[p] = new RandomPlayer(game, p);
+            players[p] = new RandomPlayer(p);
+            players[p].setGame(game);
         }
     }
 
@@ -69,7 +90,7 @@ public class MonteCarloSimulation {
         long now = System.currentTimeMillis();
         long end = now + DURATION_MILLISECONDS;
 
-        game.getMapPanel().startTime(DURATION_SECONDS);
+        game.updateGuiTimer(DURATION_SECONDS);
         int simulationRun = 0;
         while (now < end) {
             runSimulation();
@@ -77,11 +98,19 @@ public class MonteCarloSimulation {
             now = System.currentTimeMillis();
         }
 
+        List<Move> villageLocations = new ArrayList<>();
+
         List<Move> doMoves = new ArrayList<>();
 
         State tempState = state.copy();
         List<MCNode> currentMoves = initialMoves;
         while (true) {
+
+
+            villageLocations.clear();
+            Rule.getBuildVillageMoves(game.getMap(), tempState, thisPlayerIndex, villageLocations);
+            int villageLocation = villageLocations.size();
+
 
             double bestWr = -1;
             MCNode bestMove = currentMoves.get(0);
@@ -89,6 +118,9 @@ public class MonteCarloSimulation {
                 MCScore score = memorized.get(m);
                 if(score != null) {
                     double wr = score.getWinRatio();
+                    if(villageLocation > 0 && m.getMove() instanceof BuildRoad) {
+                        wr *= (4f - villageLocation)/4;
+                    }
                     if(bestWr < wr) {
                         bestWr = wr;
                         bestMove = score.getNode();
@@ -110,15 +142,18 @@ public class MonteCarloSimulation {
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        for(Move m : doMoves) {
-            sb.append("- ");
-            sb.append(m.toString());
-            sb.append("\n");
+        if(verbose) {
+            StringBuilder sb = new StringBuilder();
+            for(Move m : doMoves) {
+                sb.append("- ");
+                sb.append(m.toString());
+                sb.append("\n");
+            }
+
+            System.out.printf("--> Round: %d \t Simulation ran: %d \t Best Turn Moves:\n%s",
+                    state.getRound(), simulationRun, sb.toString());
         }
 
-        System.out.printf("--> Round: %d \t Simulation ran: %d \t Best Turn Moves:\n%s",
-                state.getRound(), simulationRun, sb.toString());
 
         return doMoves;
     }
@@ -134,7 +169,7 @@ public class MonteCarloSimulation {
         long now = System.currentTimeMillis();
         long end = now + DURATION_MILLISECONDS;
 
-        game.getMapPanel().startTime(DURATION_SECONDS);
+        game.updateGuiTimer(DURATION_SECONDS);
         int simulationRun = 0;
         while (now < end) {
             runSimulation();
@@ -180,10 +215,13 @@ public class MonteCarloSimulation {
             }
         }
 
-        System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s",
-                state.getRound(), simulationRun,
-                bestVillagePlacingMove.getMove().toString(),
-                bestRoadPlacingMove.getMove().toString());
+        if(verbose) {
+            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s",
+                    state.getRound(), simulationRun,
+                    bestVillagePlacingMove.getMove().toString(),
+                    bestRoadPlacingMove.getMove().toString());
+        }
+
 
         List<Move> doMoves = new ArrayList<>();
         doMoves.add(bestVillagePlacingMove.getMove());
@@ -201,7 +239,7 @@ public class MonteCarloSimulation {
         long now = System.currentTimeMillis();
         long end = now + DURATION_MILLISECONDS;
 
-        game.getMapPanel().startTime(DURATION_SECONDS);
+        game.updateGuiTimer(DURATION_SECONDS);
         int simulationRun = 0;
         while (now < end) {
             runSimulation();
@@ -222,8 +260,11 @@ public class MonteCarloSimulation {
             }
         }
 
-        System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Resource Drop: %s",
-                state.getRound(), simulationRun, bestDropResourceMove.getMove().toString());
+        if(verbose) {
+            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Resource Drop: %s",
+                    state.getRound(), simulationRun, bestDropResourceMove.getMove().toString());
+        }
+
 
         return (DropResources) bestDropResourceMove.getMove();
     }
@@ -238,7 +279,7 @@ public class MonteCarloSimulation {
         long now = System.currentTimeMillis();
         long end = now + DURATION_MILLISECONDS;
 
-        game.getMapPanel().startTime(DURATION_SECONDS);
+        game.updateGuiTimer(DURATION_SECONDS);
         int simulationRun = 0;
         while (now < end) {
             runSimulation();
@@ -258,9 +299,10 @@ public class MonteCarloSimulation {
             }
         }
 
-        System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Robber move: %s",
-                state.getRound(), simulationRun, bestRobberMove.getMove().toString());
-
+        if(verbose) {
+            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Robber move: %s",
+                    state.getRound(), simulationRun, bestRobberMove.getMove().toString());
+        }
 
         return (MoveRobber) bestRobberMove.getMove();
     }
@@ -394,7 +436,7 @@ public class MonteCarloSimulation {
         List<MCNode> allMoves = new ArrayList<>();
 
         int totalPlays = 0;
-        if(state.equals(initialState) && initialMoves != null) {
+        if(initialMoves != null && state.equals(initialState)) {
             allMoves = initialMoves;
 
             for(MCNode node : initialMoves) {
@@ -419,7 +461,7 @@ public class MonteCarloSimulation {
                             }
                         }
                     }
-                    if(playersToRob.size() == 0) playersToRob.add(-1); // Add no one to rob
+                    //if(playersToRob.size() == 0) playersToRob.add(-1); // Add no one to rob
 
                     for(Integer pi : playersToRob) {
                         MoveRobber mr = new MoveRobber(thisPlayerIndex, t.getIndex(), pi);
@@ -439,6 +481,11 @@ public class MonteCarloSimulation {
             if(initialMoves == null && state.equals(initialState)){
                 initialMoves = allMoves;
             }
+        }
+
+        if(allMoves.size() == 0) {
+            System.out.println("Break");
+            return new MCNode(null, state);
         }
 
         return pickMove(allMoves, allMemorized, totalPlays);

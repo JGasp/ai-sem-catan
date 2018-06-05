@@ -30,31 +30,22 @@ public class Game {
 
     private Byte winnerIndex = null;
 
-    public Game() {
-        this(true);
+    public Game(Player[] players) {
+        this(players, true);
     }
 
-    public Game(boolean displayGui) {
-        map = new Map();
+    public Game(Player[] players, boolean displayGui) {
+        this.map = new Map();
+        this.state = new State();
         this.displayGui = displayGui;
 
-        if(displayGui) {
-            mapPanel = new MapPanel(map);
+        if(displayGui) mapPanel = new MapPanel(map);
+
+        this.playerList = players;
+        for(Player p : playerList) {
+            p.setGame(this);
         }
-
-        state = new State();
-        initPlayers();
     }
-
-    public void initPlayers() {
-        playerList = new Player[State.NUMBER_OF_PLAYERS];
-        playerList[0] = new HumanPlayer(this, 0);
-        //playerList[0] = new RandomPlayer(this, 0);
-        playerList[1] = new MonteCarloPlayer(this,1);
-        /*playerList[2] = new HumanPlayer(this,2);
-        playerList[3] = new HumanPlayer(this,3);*/
-    }
-
 
     public void start() {
         placementGameLoop();
@@ -103,7 +94,7 @@ public class Game {
                 MoveRobber m = p.moveRobber(state);
                 m.make(this, state);
 
-                updateGui(new InfoMessage(m.toString(), playerIndex) );
+                updateGui(new InfoMessage(m.toString(), playerIndex));
             } else {
                 // Add all resources
                 for(int pi=0; pi<playerList.length; pi++) {
@@ -134,7 +125,7 @@ public class Game {
                 break;
             }
 
-            if(state.getRound() > 10000) {
+            if(state.getRound() > 500) {
                 String info = "Game took to long";
                 updateGui(new InfoMessage(info));
                 return;
@@ -158,17 +149,30 @@ public class Game {
         return winnerIndex;
     }
 
+    public void setDisplayGui(boolean displayGui) {
+        this.displayGui = displayGui;
+    }
+
     public void updateGui(InfoMessage roundInfo) {
         updateGui(roundInfo, true);
     }
 
     public void updateGui(InfoMessage roundInfo, boolean wait) {
         if(displayGui) {
+            if(mapPanel == null) {
+                mapPanel = new MapPanel(getMap());
+            }
             mapPanel.updateState(state, roundInfo);
 
             if(wait) {
                 //waitForSpace();
             }
+        }
+    }
+
+    public void updateGuiTimer(int seconds) {
+        if(displayGui) {
+            mapPanel.startTime(seconds);
         }
     }
 

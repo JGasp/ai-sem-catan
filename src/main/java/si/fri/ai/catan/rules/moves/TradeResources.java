@@ -35,7 +35,7 @@ public class TradeResources extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, tradeIn, tradeOut, ratio);
+        return Objects.hash(TradeResources.class.getSimpleName(), playerIndex, tradeIn, tradeOut, ratio);
     }
 
     @Override

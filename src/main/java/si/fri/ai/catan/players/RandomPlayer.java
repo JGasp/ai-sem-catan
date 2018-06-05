@@ -1,6 +1,5 @@
 package si.fri.ai.catan.players;
 
-import si.fri.ai.catan.Game;
 import si.fri.ai.catan.State;
 import si.fri.ai.catan.dto.ResourceAmount;
 import si.fri.ai.catan.map.parts.Land;
@@ -19,8 +18,8 @@ import java.util.*;
 
 public class RandomPlayer extends Player {
 
-    public RandomPlayer(Game game, int playerIndex) {
-        super(game, playerIndex);
+    public RandomPlayer(int playerIndex) {
+        super(playerIndex);
     }
 
     @Override

@@ -20,4 +20,7 @@ public abstract class Move {
         }
     }
 
+    public int getPlayerIndex() {
+        return playerIndex;
+    }
 }

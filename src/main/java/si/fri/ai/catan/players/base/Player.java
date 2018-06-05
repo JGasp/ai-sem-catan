@@ -17,11 +17,9 @@ public abstract class Player {
     private int playerIndex;
 
 
-    public Player(Game game, int playerIndex) {
-        this.game = game;
+    public Player(int playerIndex) {
         this.playerIndex = playerIndex;
     }
-
 
     public int getPlayerIndex() {
         return playerIndex;

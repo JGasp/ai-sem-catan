@@ -52,7 +52,7 @@ public class BuildVillage extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, landIndex);
+        return Objects.hash(BuildVillage.class.getSimpleName(),playerIndex, landIndex);
     }
 
     @Override

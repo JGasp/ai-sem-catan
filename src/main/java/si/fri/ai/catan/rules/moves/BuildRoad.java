@@ -37,7 +37,7 @@ public class BuildRoad extends Move {
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerIndex, roadIndex);
+        return Objects.hash(BuildRoad.class.getSimpleName(), playerIndex, roadIndex);
     }
 
     @Override

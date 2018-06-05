@@ -7,19 +7,33 @@ import si.fri.ai.catan.players.base.Player;
 import si.fri.ai.catan.players.monteCarlo.MonteCarloSimulation;
 import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
-import si.fri.ai.catan.rules.moves.PlacingVillage;
 import si.fri.ai.catan.rules.moves.base.Move;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MonteCarloPlayer extends Player {
 
     private MonteCarloSimulation simulation;
 
-    public MonteCarloPlayer(Game game, int playerIndex) {
-        super(game, playerIndex);
-        simulation = new MonteCarloSimulation(game, playerIndex);
+    public MonteCarloPlayer(int playerIndex) {
+        this(playerIndex, true);
+    }
+
+    public MonteCarloPlayer(int playerIndex, boolean verbose) {
+        super(playerIndex);
+        simulation = new MonteCarloSimulation(playerIndex, verbose);
+    }
+
+    @Override
+    public void setGame(Game game) {
+        super.setGame(game);
+        simulation.setGame(game);
+    }
+
+    @Override
+    public void setPlayerIndex(int playerIndex) {
+        super.setPlayerIndex(playerIndex);
+        simulation.setThisPlayerIndex((byte) playerIndex);
     }
 
     @Override
