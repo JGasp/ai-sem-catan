@@ -13,8 +13,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        //playGame();
-        playGames();
+        playGame();
+        //playGames();
         //testDiceFairness();
 
     }
@@ -48,7 +48,7 @@ public class Main {
     public static void playGames() {
 
         //Player[] players = getRngVsMonteCarlo(false);
-        Player[] players = getRngVsMonteCarlo(false);
+        Player[] players = getHumanVsMonteCarlo(false);
 
         HashMap<Player, Counter> counters = new HashMap<>();
         for(Player p : players) {

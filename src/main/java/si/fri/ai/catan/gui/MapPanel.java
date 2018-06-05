@@ -164,7 +164,7 @@ public class MapPanel extends JPanel {
 
         PlayerResAvgInc prai = new PlayerResAvgInc(state, playerIndex);
 
-        textIndex = String.format("[  ] \t%1.2f \t%1.2f \t%1.2f \t%1.2f \t%1.2f",
+        textIndex = String.format("[%1.2f] \t%1.2f \t%1.2f \t%1.2f \t%1.2f \t%1.2f", prai.getTotalAverageIncome(),
                 prai.get(ResourceType.WOOD), prai.get(ResourceType.IRON), prai.get(ResourceType.CLAY),
                 prai.get(ResourceType.WHEAT), prai.get(ResourceType.SHEEP)).toCharArray();
         yOffset += 15;

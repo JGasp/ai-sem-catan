@@ -21,20 +21,22 @@ import java.util.List;
 
 /**
  * Score: HumanPlayer: 100000 	RandomPlayer: 0
+ * Score: MonteCarloPlayer: 65 	RandomPlayer: 0
  *
- * 15s Score: MonteCarloPlayer: 188 	HumanPlayer: 315
+ * 15s Score: MonteCarloPlayer: 188 HumanPlayer: 315
  * 5s Score: MonteCarloPlayer: 46 	HumanPlayer: 86
  * 60s Score: MonteCarloPlayer: 36 	HumanPlayer: 55
+ *
  */
 
 
 public class MonteCarloSimulation {
 
     private static final int maxRounds = 1000;
-    private static final int DURATION_SECONDS = 1;
+    private static final int DURATION_SECONDS = 3;
     private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
 
-    boolean verbose;
+    private boolean verbose;
 
     private byte thisPlayerIndex;
     private Game game;
@@ -216,10 +218,10 @@ public class MonteCarloSimulation {
         }
 
         if(verbose) {
-            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s",
+            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %d \n- Best Road: %d\n",
                     state.getRound(), simulationRun,
-                    bestVillagePlacingMove.getMove().toString(),
-                    bestRoadPlacingMove.getMove().toString());
+                    ((PlacingVillage) bestVillagePlacingMove.getMove()).getLandIndex(),
+                    ((PlacingRoad) bestRoadPlacingMove.getMove()).getRoadIndex());
         }
 
 

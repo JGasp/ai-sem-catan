@@ -64,4 +64,14 @@ public class PlayerResAvgInc {
 
         return derivation;
     }
+
+    public float getTotalAverageIncome() {
+        float totalAvgInc = 0;
+
+        for(ResourceType rt : ResourceType.values()) {
+            totalAvgInc += get(rt);
+        }
+
+        return totalAvgInc;
+    }
 }

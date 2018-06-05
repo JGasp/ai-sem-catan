@@ -27,6 +27,9 @@ public class PlacingRoad extends Move {
         return String.format("[%d] Placed road on [%d]", playerIndex, roadIndex);
     }
 
+    public byte getRoadIndex() {
+        return roadIndex;
+    }
 
     @Override
     public int hashCode() {

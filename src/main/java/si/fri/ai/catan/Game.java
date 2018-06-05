@@ -20,6 +20,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class Game {
 
+    private static final boolean VERBOSE = true;
+
     private boolean displayGui = true;
 
     private Map map;
@@ -75,7 +77,7 @@ public class Game {
             int dice = Rule.throwDice();
             byte playerIndex = state.getCurrentPlayerIndex();
 
-            String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d \n", state.getRound(), dice, playerIndex);
+            String roundInfo = String.format("Round %d \t Dice: %d \t Player: %d", state.getRound(), dice, playerIndex);
             updateGui(new InfoMessage(roundInfo), false);
 
             Player p = playerList[playerIndex];
@@ -158,6 +160,10 @@ public class Game {
     }
 
     public void updateGui(InfoMessage roundInfo, boolean wait) {
+        if(VERBOSE && roundInfo != null) {
+            System.out.println(roundInfo.getMessage());
+        }
+
         if(displayGui) {
             if(mapPanel == null) {
                 mapPanel = new MapPanel(getMap());
