@@ -3,10 +3,7 @@ package si.fri.ai.catan;
 import si.fri.ai.catan.dto.InfoMessage;
 import si.fri.ai.catan.gui.MapPanel;
 import si.fri.ai.catan.map.Map;
-import si.fri.ai.catan.players.HumanPlayer;
-import si.fri.ai.catan.players.RandomPlayer;
 import si.fri.ai.catan.players.base.Player;
-import si.fri.ai.catan.players.MonteCarloPlayer;
 import si.fri.ai.catan.rules.Rule;
 import si.fri.ai.catan.rules.moves.DropResources;
 import si.fri.ai.catan.rules.moves.MoveRobber;
@@ -20,7 +17,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class Game {
 
-    private static final boolean VERBOSE = false;
+    private boolean verbose = true;
     private boolean displayGui = true;
 
     private Map map;
@@ -159,7 +156,7 @@ public class Game {
     }
 
     public void updateGui(InfoMessage roundInfo, boolean wait) {
-        if(VERBOSE && roundInfo != null) {
+        if(verbose && roundInfo != null) {
             System.out.println(roundInfo.getMessage());
         }
 
@@ -185,8 +182,9 @@ public class Game {
         return mapPanel;
     }
 
-
-
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
 
     private static boolean pressed = false;
     public static void waitForSpace() {

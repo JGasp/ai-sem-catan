@@ -26,6 +26,7 @@ import java.util.List;
  * 15s Score: MonteCarloPlayer: 188 HumanPlayer: 315
  * 5s Score: MonteCarloPlayer: 46 	HumanPlayer: 86
  * 60s Score: MonteCarloPlayer: 36 	HumanPlayer: 55
+ * 3 Score: MonteCarloPlayer: 27 	HumanPlayer: 36
  *
  */
 
@@ -33,7 +34,7 @@ import java.util.List;
 public class MonteCarloSimulation {
 
     private static final int MAX_ROUNDS = 1000;
-    private static final int DURATION_SECONDS = 3;
+    private static final int DURATION_SECONDS = 5;
     private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
 
     private static final boolean VERBOSE = false;
@@ -69,7 +70,6 @@ public class MonteCarloSimulation {
             players[p].setGame(game);
         }
     }
-
 
     public List<Move> getTurnMoves(State state) {
         this.entryPoint = EntryPoint.TURN;

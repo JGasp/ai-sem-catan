@@ -57,6 +57,4 @@ public class MonteCarloPlayer extends Player {
         return simulation.getMoveRobberMove(state);
     }
 
-
-
 }
