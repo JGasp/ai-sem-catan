@@ -31,7 +31,7 @@ import java.util.List;
 public class MonteCarloSimulation {
 
     private static final int maxRounds = 1000;
-    private static final int DURATION_SECONDS = 1;
+    private static final int DURATION_SECONDS = 3;
     private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
 
     boolean verbose;
@@ -216,7 +216,7 @@ public class MonteCarloSimulation {
         }
 
         if(verbose) {
-            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s",
+            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s\n",
                     state.getRound(), simulationRun,
                     bestVillagePlacingMove.getMove().toString(),
                     bestRoadPlacingMove.getMove().toString());

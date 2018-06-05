@@ -25,7 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 public class MapPanel extends JPanel {
 
-    private static final Color[] playerColors = { Color.MAGENTA, Color.WHITE, Color.RED, Color.BLUE };
+    private static final Color DARK_RED = new Color(174,12,25);
+
+    private static final Color DARK_YELLOW = new Color(99,90,21);
+
+    private static final Color[] playerColors = { DARK_RED, DARK_YELLOW, Color.RED, Color.BLUE };
 
     private static final int Y_OFFSET = 500;
     private static final int X_OFFSET = 900;

@@ -13,8 +13,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        //playGame();
-        playGames();
+        playGame();
+        //playGames();
         //testDiceFairness();
 
     }
