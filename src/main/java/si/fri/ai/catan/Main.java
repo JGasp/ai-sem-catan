@@ -13,14 +13,14 @@ public class Main {
 
     public static void main(String[] args) {
 
-        playGame();
-        //playGames();
+        //playGame();
+        playGames();
         //testDiceFairness();
 
     }
 
     public static void playGame() {
-        Game game = new Game(getHumanVsMonteCarlo(true));
+        Game game = new Game(getHumanVsMonteCarlo());
         game.start();
     }
 
@@ -48,7 +48,7 @@ public class Main {
     public static void playGames() {
 
         //Player[] players = getRngVsMonteCarlo(false);
-        Player[] players = getHumanVsMonteCarlo(false);
+        Player[] players = getHumanVsMonteCarlo();
 
         HashMap<Player, Counter> counters = new HashMap<>();
         for(Player p : players) {
@@ -85,17 +85,17 @@ public class Main {
 
     }
 
-    public static Player[] getHumanVsMonteCarlo(boolean verbose) {
+    public static Player[] getHumanVsMonteCarlo() {
         Player[] players = new Player[2];
-        players[0] = new MonteCarloPlayer(0, verbose);
+        players[0] = new MonteCarloPlayer(0);
         players[1] = new HumanPlayer(1);
 
         return players;
     }
 
-    public static Player[] getRngVsMonteCarlo(boolean verbose) {
+    public static Player[] getRngVsMonteCarlo() {
         Player[] players = new Player[2];
-        players[0] = new MonteCarloPlayer(0, verbose);
+        players[0] = new MonteCarloPlayer(0);
         players[1] = new RandomPlayer(1);
 
         return players;

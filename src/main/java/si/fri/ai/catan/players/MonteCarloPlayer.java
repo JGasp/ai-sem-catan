@@ -16,12 +16,8 @@ public class MonteCarloPlayer extends Player {
     private MonteCarloSimulation simulation;
 
     public MonteCarloPlayer(int playerIndex) {
-        this(playerIndex, true);
-    }
-
-    public MonteCarloPlayer(int playerIndex, boolean verbose) {
         super(playerIndex);
-        simulation = new MonteCarloSimulation(playerIndex, verbose);
+        simulation = new MonteCarloSimulation(playerIndex);
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MapPanel extends JPanel {
 
+
     private static final Color[] playerColors = { Color.MAGENTA, Color.WHITE, Color.RED, Color.BLUE };
 
     private static final int Y_OFFSET = 500;
@@ -308,6 +309,9 @@ public class MapPanel extends JPanel {
         Polygon polygon = new Polygon(xPoints, yPoints, 5);
 
         g.fillPolygon(polygon);
+
+        g.setColor(Color.BLACK);
+        g.drawPolygon(polygon);
     }
 
     private void paintCityFigure(Graphics g, Point p, int playerIndex) {
@@ -332,12 +336,17 @@ public class MapPanel extends JPanel {
         Polygon polygon = new Polygon(xPoints, yPoints, 6);
 
         g.fillPolygon(polygon);
+
+        g.setColor(Color.BLACK);
+        g.drawPolygon(polygon);
     }
 
     private void paintRoadFigure(Graphics g, Point from, Point to, int playerIndex) {
         g.setColor(playerColors[playerIndex]);
 
         Graphics2D g2 = (Graphics2D) g;
+
+        Stroke s = g2.getStroke();
         g2.setStroke(new BasicStroke(5));
 
         Vector v = Vector.vec(from, to).scale(0.2);
@@ -348,6 +357,7 @@ public class MapPanel extends JPanel {
         g.drawLine((int) p1.getX() + X_OFFSET, (int) p1.getY() + Y_OFFSET,
                 (int) p2.getX() + X_OFFSET, (int) p2.getY() + Y_OFFSET);
 
+        g2.setStroke(s);
     }
 
     private void paintThief(Graphics g, Point p) {

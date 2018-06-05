@@ -32,11 +32,11 @@ import java.util.List;
 
 public class MonteCarloSimulation {
 
-    private static final int maxRounds = 1000;
+    private static final int MAX_ROUNDS = 1000;
     private static final int DURATION_SECONDS = 3;
     private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
 
-    private boolean verbose;
+    private static final boolean VERBOSE = false;
 
     private byte thisPlayerIndex;
     private Game game;
@@ -51,12 +51,6 @@ public class MonteCarloSimulation {
 
     public MonteCarloSimulation(int playerIndex) {
         this.thisPlayerIndex = (byte) playerIndex;
-        this.verbose = true;
-    }
-
-    public MonteCarloSimulation(int playerIndex, boolean verbose) {
-        this.thisPlayerIndex = (byte) playerIndex;
-        this.verbose = verbose;
     }
 
     public void setGame(Game game) {
@@ -144,7 +138,7 @@ public class MonteCarloSimulation {
             }
         }
 
-        if(verbose) {
+        if(VERBOSE) {
             StringBuilder sb = new StringBuilder();
             for(Move m : doMoves) {
                 sb.append("- ");
@@ -217,8 +211,8 @@ public class MonteCarloSimulation {
             }
         }
 
-        if(verbose) {
-            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %d \n- Best Road: %d\n",
+        if(VERBOSE) {
+            System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Village: %s \n- Best Road: %s\n",
                     state.getRound(), simulationRun,
                     ((PlacingVillage) bestVillagePlacingMove.getMove()).getLandIndex(),
                     ((PlacingRoad) bestRoadPlacingMove.getMove()).getRoadIndex());
@@ -262,7 +256,7 @@ public class MonteCarloSimulation {
             }
         }
 
-        if(verbose) {
+        if(VERBOSE) {
             System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Resource Drop: %s",
                     state.getRound(), simulationRun, bestDropResourceMove.getMove().toString());
         }
@@ -301,7 +295,7 @@ public class MonteCarloSimulation {
             }
         }
 
-        if(verbose) {
+        if(VERBOSE) {
             System.out.printf("--> Round: %d \t Simulation ran: %d \n- Best Robber move: %s",
                     state.getRound(), simulationRun, bestRobberMove.getMove().toString());
         }
@@ -679,7 +673,7 @@ public class MonteCarloSimulation {
         byte winner = -1;
         int rounds = 0;
 
-        while (rounds < maxRounds) {
+        while (rounds < MAX_ROUNDS) {
             rounds++;
 
             int dice = Rule.throwDice();

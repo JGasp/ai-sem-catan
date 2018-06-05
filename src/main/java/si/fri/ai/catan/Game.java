@@ -20,8 +20,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class Game {
 
-    private static final boolean VERBOSE = true;
-
+    private static final boolean VERBOSE = false;
     private boolean displayGui = true;
 
     private Map map;
