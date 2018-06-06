@@ -156,7 +156,7 @@ public class MapPanel extends JPanel {
 
         PlayerResAmount pra = new PlayerResAmount(state, playerIndex);
 
-        textIndex = String.format("[$$] \t %3d \t %3d \t %3d \t %3d \t %3d",
+        textIndex = String.format("[%2d] \t %3d \t %3d \t %3d \t %3d \t %3d", pra.getTotalAmount(),
                 pra.get(ResourceType.WOOD), pra.get(ResourceType.IRON), pra.get(ResourceType.CLAY),
                 pra.get(ResourceType.WHEAT), pra.get(ResourceType.SHEEP)).toCharArray();
 

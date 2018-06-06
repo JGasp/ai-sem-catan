@@ -23,18 +23,20 @@ import java.util.List;
  * Score: HumanPlayer: 100000 	RandomPlayer: 0
  * Score: MonteCarloPlayer: 65 	RandomPlayer: 0
  *
- * 15s Score: MonteCarloPlayer: 188 HumanPlayer: 315
  * 5s Score: MonteCarloPlayer: 46 	HumanPlayer: 86
+ * 15s Score: MonteCarloPlayer: 188 HumanPlayer: 315
  * 60s Score: MonteCarloPlayer: 36 	HumanPlayer: 55
- * 3 Score: MonteCarloPlayer: 27 	HumanPlayer: 36
  *
+ * 3s Score: MonteCarloPlayer: 27 	HumanPlayer: 36
+ * 3s Score: HumanPlayer: 287 	MonteCarloPlayer: 152
+ * 323 179 502
  */
 
 
 public class MonteCarloSimulation {
 
     private static final int MAX_ROUNDS = 1000;
-    private static final int DURATION_SECONDS = 5;
+    private static final int DURATION_SECONDS = 2;
     private static final int DURATION_MILLISECONDS = DURATION_SECONDS * 1000;
 
     private static final boolean VERBOSE = false;
@@ -101,7 +103,6 @@ public class MonteCarloSimulation {
         State tempState = state.copy();
         List<MCNode> currentMoves = initialMoves;
         while (true) {
-
 
             villageLocations.clear();
             Rule.getBuildVillageMoves(game.getMap(), tempState, thisPlayerIndex, villageLocations);
